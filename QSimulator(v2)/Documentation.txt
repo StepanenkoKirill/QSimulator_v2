@@ -1,0 +1,3 @@
+/*QLab library vers. 1.2 for testing and designing quantum algorithms*/
+
+/////////////////////////////////////////////////////////////
