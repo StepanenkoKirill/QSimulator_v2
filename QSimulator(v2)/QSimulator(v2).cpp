@@ -18,6 +18,6 @@ int main()
 		//std::cout << input_instruction[input_instruction.length() - 1] << std::endl;
 		++num;
 	}
-	std::cout << num;
+	std::cout << num << std::endl;
 	in.close();
 }

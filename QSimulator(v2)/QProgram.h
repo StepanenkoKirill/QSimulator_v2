@@ -4,6 +4,8 @@
 #include <Queue>
 #include "Qsyntax_analyser.h"
 
+
+
 namespace Work_namespace {
 
 	class QProgram {
