@@ -20,4 +20,6 @@ int main()
 	}
 	std::cout << num << std::endl;
 	in.close();
+	std::vector<int>* x = new std::vector<int>;
+	x->push_back(5);
 }
