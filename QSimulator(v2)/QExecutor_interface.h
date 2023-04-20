@@ -3,6 +3,7 @@
 namespace Work_namespace {
 
 	class QExecutor_interface {
+	protected:
 
 		class QRegister {
 		public:
@@ -15,7 +16,9 @@ namespace Work_namespace {
 				amplitudes->resize(space_size);
 				amplitudes->at(0) = 1.;
 			}
-			std::vector<std::complex<double>>& add_ancilla(); // add functionality
+			void Add_ancilla(); // add functionality
+			void Tensor_product(const QRegister& another_reg);
+
 			void Project(const long& space_size) {
 				//add check for 2^n space_size
 				amplitudes->resize(space_size);
@@ -37,6 +40,7 @@ namespace Work_namespace {
 			long size = 0;
 			std::vector<std::complex<double>> *amplitudes = nullptr;
 		};
+
 		/*Standart Basis*/
 		virtual void R_x(const double angle) = 0 {};
 		virtual void R_y(const double angle) = 0 {};

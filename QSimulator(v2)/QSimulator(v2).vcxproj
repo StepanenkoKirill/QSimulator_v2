@@ -145,6 +145,7 @@
     <ClInclude Include="macro.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="QAlgorithms.h" />
+    <ClInclude Include="QClassic_simulator_handler.h" />
     <ClInclude Include="QExecutor_interface.h" />
     <ClInclude Include="QProgram.h" />
     <ClInclude Include="QSimulator.h" />

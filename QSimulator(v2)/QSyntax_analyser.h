@@ -21,6 +21,7 @@ namespace Work_namespace {
 		return answer;
 	}
 
+	/*Analyser should use the queue, that we've filled with commands from user. Need to render Analyser*/
 	bool Analyser(std::fstream& in) {
 		bool answer = false;
 		std::string input_instruction, temp;

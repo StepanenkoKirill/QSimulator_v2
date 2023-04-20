@@ -41,6 +41,9 @@
     <ClInclude Include="QAlgorithms.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="QClassic_simulator_handler.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Debugging_test_file.txt">
