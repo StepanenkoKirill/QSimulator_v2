@@ -13,13 +13,25 @@ int main()
 	std::ifstream in;
 	int num = 0;
 	in.open("Debugging_test_file.txt");
-	while (getline(in, input_instruction, ';')) {
-		std::cout << input_instruction << std::endl;
-		//std::cout << input_instruction[input_instruction.length() - 1] << std::endl;
-		++num;
-	}
-	std::cout << num << std::endl;
-	in.close();
-	std::vector<int>* x = new std::vector<int>;
-	x->push_back(5);
+//	while (getline(in, input_instruction, ';')) {
+//		std::cout << input_instruction << std::endl;
+//		//std::cout << input_instruction[input_instruction.length() - 1] << std::endl;
+//		++num;
+//	}
+//	std::cout << num << std::endl;
+//	in.close();
+	class ii {
+		int x = 0;
+	public:
+		virtual void do_sth();
+	};
+
+	class n_iter : ii {
+		int y = 0;
+	public:
+		void do_sth() override{
+
+		}
+
+	};
 }

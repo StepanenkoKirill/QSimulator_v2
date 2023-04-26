@@ -3,7 +3,9 @@
 #include <stdexcept>
 #include <Queue>
 #include "Qsyntax_analyser.h"
-
+#include "QClassic_simulator_handler.h"
+#include <string>
+#include <fstream>
 
 
 namespace Work_namespace {
@@ -12,8 +14,19 @@ namespace Work_namespace {
 	private:
 		std::queue<std::string> command_queue;
 		int qubits_amount = 0;
-		//	std::vector < std::complex<double>> amplitudes; // в кв. вычислени€х мы не можем просто установить вектор
-			// в интересующем нас состо€нии.  аждое состо€ние получаетс€ преобразовани€ми над регистром
+		/*describe how we execute quantum program*/
+		std::vector<bool> handle_quantum_instruction(std::ifstream& in) {
+			std::vector<bool> _answer;
+			std::string QOperation;
+			long command_number = 0;
+			while (std::getline(in, QOperation)) {
+				switch (command_number) {
+				case 0:
+
+				}
+			}
+			return _answer;
+		}
 	public:
 		std::vector<bool> answer;
 		void Init_reg(const int amount = 0);
@@ -41,22 +54,6 @@ namespace Work_namespace {
 
 
 		void Measure(long qubit_to_measure = 0); // = 0 - значение по умол€чанию
-
-		/*¬ случае отправки данных на сервер здесь может быть осуществлен метод execute, осуществл€ющий предачу данных
-		и возвращающий некоторое вычисленное значение программы*/
-
-		/*¬озможно этот метод стоит сделать и дл€ клиентского приложени€, потому что по сути нет разделени€
-		с симул€тором. ≈го функционал представл€ют классы ркгистра и операций. ѕросто их можн вызывать
-		из данного метода, подобно тому, как этот метод будет делать запросы на сервер по соответствующему
-		шаблону, обраща€сь к нужным методам и отдава€ нужные параметры дл€ выполнени€ на сервере.
-
-		¬ этом случае становитс€ €сно, почему грамматика идЄт именно с клиента. ≈е примитивный вид тут можно
-		и организовать.
-
-		ќстаЄтс€: 1. Ќекоторые непримитивные операторы
-				  2. –азбор строки дл€ исполнени€ симул€тором
-				  3. ќписание оператора измерени€
-				  4. ’от€ бы один алгоритм.*/
 	};
 
 	void QProgram::Make_empty_command_queue() {
@@ -82,7 +79,7 @@ namespace Work_namespace {
 			throw std::invalid_argument("Register consists of more than 1 qubit.");
 		}
 		std::stringstream parameters;
-		parameters << ",R_x(" << theta << "," << qubit_num << ")";
+		parameters << "R_x(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
 	void QProgram::R_y(const double theta, const int qubit_num) {
@@ -93,7 +90,7 @@ namespace Work_namespace {
 			throw std::invalid_argument("Register consists of more than 1 qubit.");
 		}
 		std::stringstream parameters;
-		parameters << ",R_y(" << theta << "," << qubit_num << ")";
+		parameters << "R_y(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
 	void QProgram::R_z(const double theta, const int qubit_num) {
@@ -104,11 +101,28 @@ namespace Work_namespace {
 			throw std::invalid_argument("Register consists of more than 1 qubit.");
 		}
 		std::stringstream parameters;
-		parameters << ",R_z(" << theta << "," << qubit_num << ")";
+		parameters << "R_z(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
 	// сделать качественно и дополнить операторами, в том числе измерени€ помен€ть тип long
 	void QProgram::Measure(long qubit_to_measure) {
+		if (qubit_to_measure != 0 && qubit_to_measure > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_to_measure));
+		}
+		std::stringstream parameters;
+		parameters << "Measure(" << qubit_to_measure << ")";
+		command_queue.push(parameters.str());
+		if (Analyser(command_queue)) {
+			std::ifstream in;
+			in.open("Debugging_test_file.txt");
+			QClassic_simulator_handler handler(in);
+			answer = handler.run();
+			in.close();
+			remove("Debugging_test_file.txt");
+		}
+		else {
+			std::cout << "An ERROR occured during syntax analisis. Check your QProgram for mistakes" << "\n";
+		}
 		return;
 	}
 }

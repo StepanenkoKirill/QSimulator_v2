@@ -33,7 +33,19 @@ namespace Work_namespace {
 					std::cout << "An undefined behaviour";
 				}
 			}
-			void Add_ancilla(); // add functionality
+			void Add_ancilla_qubit(std::vector<std::complex<double>>& initial_amplitudes) {
+				if (initial_amplitudes.size() != 2) {
+					std::cout << "ERROR in Add_ancilla_qubit: wrong size of the ancilla bit" << std::endl;
+
+				}
+				else if (initial_amplitudes.size() == 2) {
+					Tensor_product(initial_amplitudes);
+				}
+				else {
+					std::cout << "ERROR in Add_ancilla_qubit: An undefined behaviour";
+				}
+				
+			}
 
 			/*copy current amplitudes and resize reg with new ampl-s*/
 			void Tensor_product(const QRegister& another_reg) {
@@ -44,7 +56,20 @@ namespace Work_namespace {
 				*tmp = (*amplitudes);
 				amplitudes->resize(new_space_size);
 				for (long i = 0; i < size; ++i) {
-					for (long j = 0; j < another_reg.size; ++j) {
+					for (long j = 0; j < another_reg.get_size(); ++j) {
+						(*amplitudes)[i * j + j] = (*tmp)[i] * (another_reg[j]);
+					}
+				}
+			}
+			void Tensor_product(std::vector<std::complex<double>>& another_reg) {
+				long new_size = size * another_reg.size();
+				long new_space_size = 1 << new_size;
+				std::vector<std::complex<double>>* tmp;
+				tmp = new std::vector<std::complex<double>>(size, 0);
+				*tmp = (*amplitudes);
+				amplitudes->resize(new_space_size);
+				for (long i = 0; i < size; ++i) {
+					for (long j = 0; j < another_reg.size(); ++j) {
 						(*amplitudes)[i * j + j] = (*tmp)[i] * (another_reg[j]);
 					}
 				}
@@ -54,7 +79,7 @@ namespace Work_namespace {
 				//add check for 2^n space_size
 				amplitudes->resize(space_size);
 			}
-			long get_size() const { return size; } //? why need
+			long get_size() const { return size; }
 			std::vector<std::complex<double>> get_amps() const { return *amplitudes; }
 			std::complex<double>& operator[](long i) const  { return (*amplitudes)[i]; }
 			QRegister& operator*(const std::complex<double>& var) {
