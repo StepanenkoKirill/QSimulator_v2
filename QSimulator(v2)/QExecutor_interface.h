@@ -12,11 +12,10 @@ namespace Work_namespace {
 			QRegister(const long size) {
 				this->size = size;
 				long space_size = 1 << size;
-				amplitudes = new std::vector<std::complex<double>>;
-				amplitudes->resize(space_size);
+				amplitudes = new std::vector<std::complex<double>>(space_size, 0.);
 				amplitudes->at(0) = 1.;
 			}
-			void Init_reg(const long number_of_qubits_to_set) {
+			void Initialize(const long number_of_qubits_to_set) {
 				long space_size = 1 << number_of_qubits_to_set;
 				this->size = number_of_qubits_to_set;
 				if (this->size != 0) {
@@ -25,8 +24,7 @@ namespace Work_namespace {
 					amplitudes->at(0) = 1.;
 				}
 				else if (this->size == 0){
-					amplitudes = new std::vector<std::complex<double>>;
-					amplitudes->resize(space_size);
+					amplitudes = new std::vector<std::complex<double>>(space_size, 0.);
 					amplitudes->at(0) = 1.;
 				}
 				else {
@@ -98,11 +96,13 @@ namespace Work_namespace {
 		};
 
 		/*Standart Basis*/
-		virtual void R_x(const double angle) = 0 {};
-		virtual void R_y(const double angle) = 0 {};
+		virtual void R_x(const double angle) {};
+		virtual void R_y(const double angle) {};
 		virtual void R_z(const double angle) = 0 {};
-		virtual void SWAP(const long first_qubit, const long second_qubit) = 0 {};
-		virtual void Cnot(const long first_qubit, const long second_qubit) = 0 {};
+		virtual void SWAP(const long first_qubit, const long second_qubit) {};
+		virtual void Cnot(const long first_qubit, const long second_qubit) {};
+		virtual void Init_reg(const long qubits_quantity) {}
+		virtual void Measure(const long qubit_number) {}
 
 	};
 }
