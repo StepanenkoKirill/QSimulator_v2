@@ -14,19 +14,6 @@ namespace Work_namespace {
 	private:
 		std::queue<std::string> command_queue;
 		int qubits_amount = 0;
-		/*describe how we execute quantum program*/
-		std::vector<bool> handle_quantum_instruction(std::ifstream& in) {
-			std::vector<bool> _answer;
-			std::string QOperation;
-			long command_number = 0;
-			while (std::getline(in, QOperation)) {
-				switch (command_number) {
-				case 0:
-
-				}
-			}
-			return _answer;
-		}
 	public:
 		std::vector<bool> answer;
 		void Init_reg(const int amount = 0);
@@ -118,7 +105,7 @@ namespace Work_namespace {
 			QClassic_simulator_handler handler(in);
 			answer = handler.run();
 			in.close();
-			remove("Debugging_test_file.txt");
+			remove("Debugging_test_file.txt");	
 		}
 		else {
 			std::cout << "An ERROR occured during syntax analisis. Check your QProgram for mistakes" << "\n";

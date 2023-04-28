@@ -96,13 +96,13 @@ namespace Work_namespace {
 		};
 
 		/*Standart Basis*/
-		virtual void R_x(const double angle) {};
-		virtual void R_y(const double angle) {};
-		virtual void R_z(const double angle) = 0 {};
+		virtual void R_x(const double angle, const long qubit_number = 0) {};
+		virtual void R_y(const double angle, const long qubit_number = 0) {};
+		virtual void R_z(const double angle, const long qubit_number = 0) = 0 {};
 		virtual void SWAP(const long first_qubit, const long second_qubit) {};
 		virtual void Cnot(const long first_qubit, const long second_qubit) {};
 		virtual void Init_reg(const long qubits_quantity) {}
-		virtual void Measure(const long qubit_number) {}
+		virtual void Measure(const long qubit_number = 0) {}
 
 	};
 }
