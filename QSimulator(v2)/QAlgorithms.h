@@ -50,7 +50,7 @@ namespace Work_namespace {
 			}
 			counter++; final_iterations_col = counter * iterations;
 			prog.Measure();
-			result = prog.answer;
+			result = prog.Get_answer();
 			index = result[0];
 			for (int i = 1; i < result.size(); ++i) {
 				index = index * 2 + result[i];

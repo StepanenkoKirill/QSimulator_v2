@@ -12,10 +12,11 @@ namespace Work_namespace {
 
 	class QProgram {
 	private:
+		std::vector<bool> answer;
 		std::queue<std::string> command_queue;
 		int qubits_amount = 0;
 	public:
-		std::vector<bool> answer;
+		
 		void Init_reg(const int amount = 0);
 
 		void R_x(const double theta, const int qubit_num = 0);
@@ -38,10 +39,15 @@ namespace Work_namespace {
 
 		void Arbit_transform(const Matrix<std::complex<double>>& matr) {};
 		void Make_empty_command_queue();
+		std::vector<bool> Get_answer() const;
 
 
 		void Measure(long qubit_to_measure = 0); // = 0 - значение по умол€чанию
 	};
+
+	std::vector<bool> QProgram::Get_answer() const{
+		return answer;
+	}
 
 	void QProgram::Make_empty_command_queue() {
 		while (!command_queue.empty()) {
@@ -103,7 +109,7 @@ namespace Work_namespace {
 			std::ifstream in;
 			in.open("Debugging_test_file.txt");
 			QClassic_simulator_handler handler(in);
-			answer = handler.run();
+			answer = handler.Run();
 			in.close();
 			remove("Debugging_test_file.txt");	
 		}
