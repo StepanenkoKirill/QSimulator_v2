@@ -8,6 +8,8 @@ int main()
 {
     QLab::QProgram* program;
     program = new QLab::QProgram;
+	program->Init_reg(5);
+	program->Cnot(1, 2);
 	std::string input_instruction;
 	int grammar_state = 0;
 	std::ifstream in;

@@ -7,15 +7,6 @@ namespace Work_namespace {
 	
 	class QClassic_simulator_handler {
 	private:
-		std::unordered_map<std::string, const int> operators_list = {
-		{"Init_reg", 100},
-		{"R_x", 101},
-		{"R_y", 102},
-		{"R_z", 103},
-		{"SWAP", 104},
-		{"Cnot", 105},
-		{"Measure", 106}
-		};
 		std::ifstream& instruction_stream;
 		QSimulator _sim;
 	public:
@@ -30,7 +21,6 @@ namespace Work_namespace {
 
 		template<typename T_1 = long, typename T_2 = double>
 		std::vector<bool> run() = delete;
-
 
 		long read_integer_parameter(std::string& str);
 		double read_real_parameter(std::string& str);
@@ -112,6 +102,9 @@ namespace Work_namespace {
 				break;
 			case _SWAP:
 				_sim.SWAP(read_integer_parameter(tmp), read_integer_parameter(tmp));
+				break;
+			case _Adjacent_SWAP:
+				_sim.Adjacent_SWAP(read_integer_parameter(tmp), read_integer_parameter(tmp));
 				break;
 			case _Measure:
 				_sim.Measure(read_integer_parameter(tmp));

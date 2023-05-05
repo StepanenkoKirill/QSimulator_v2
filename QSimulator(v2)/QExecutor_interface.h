@@ -15,6 +15,7 @@ namespace Work_namespace {
 				amplitudes = new std::vector<std::complex<double>>(space_size, 0.);
 				amplitudes->at(0) = 1.;
 			}
+			/*actually we'll have a 1-size space of amps if we set param to 0. That's false in quantum*/
 			void Initialize(const long number_of_qubits_to_set) {
 				long space_size = 1 << number_of_qubits_to_set;
 				this->size = number_of_qubits_to_set;
@@ -24,6 +25,9 @@ namespace Work_namespace {
 					amplitudes->at(0) = 1.;
 				}
 				else if (this->size == 0){
+					if (amplitudes) {
+						delete amplitudes;
+					}
 					amplitudes = new std::vector<std::complex<double>>(space_size, 0.);
 					amplitudes->at(0) = 1.;
 				}
@@ -96,13 +100,30 @@ namespace Work_namespace {
 		};
 
 		/*Standart Basis*/
-		virtual void R_x(const double angle, const long qubit_number = 0) {};
-		virtual void R_y(const double angle, const long qubit_number = 0) {};
-		virtual void R_z(const double angle, const long qubit_number = 0) = 0 {};
-		virtual void SWAP(const long first_qubit, const long second_qubit) {};
-		virtual void Cnot(const long first_qubit, const long second_qubit) {};
-		virtual void Init_reg(const long qubits_quantity) {}
-		virtual void Measure(const long qubit_number = 0) {}
+		virtual void R_x(const double angle, const long qubit_number = 0) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		};
+		virtual void R_y(const double angle, const long qubit_number = 0) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		};
+		virtual void R_z(const double angle, const long qubit_number = 0) = 0 {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		};
+		virtual void SWAP(const long first_qubit, const long second_qubit) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		};
+		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		};
+		virtual void Cnot(const long first_qubit, const long second_qubit) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		};
+		virtual void Init_reg(const long qubits_quantity) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		}
+		virtual void Measure(const long qubit_number = 0) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		}
 
 	};
 }
