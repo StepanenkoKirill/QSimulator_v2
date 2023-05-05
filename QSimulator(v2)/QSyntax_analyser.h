@@ -175,6 +175,7 @@ namespace Work_namespace {
 		}
 		if (grammar_state == _END_STATE) answer = true;
 		out.close();
+		//print helloooooo
 		return answer;
 	}
 }
