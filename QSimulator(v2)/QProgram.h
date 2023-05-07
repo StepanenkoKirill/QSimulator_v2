@@ -27,7 +27,7 @@ namespace Work_namespace {
 		void R_z_conj(const double theta, const long qubit_num = 0);
 		void Cnot(const long qubit_1, const long qubit_2);
 
-		void H(const long qubit_num = 0) {};
+		void H(const long qubit_num = 0);
 		void X(const long qubit_num = 0);
 		void Y(const long qubit_num = 0);
 		void Z(const long qubit_num = 0);
@@ -42,7 +42,7 @@ namespace Work_namespace {
 		std::vector<bool> Get_answer() const;
 
 
-		void Measure(long qubit_to_measure = 0); // = 0 - значение по умолячанию
+		void Measure(long qubit_to_measure = 0); // = 0 - значение по умолчанию
 	};
 
 	std::vector<bool> QProgram::Get_answer() const{
@@ -65,41 +65,262 @@ namespace Work_namespace {
 		command_queue.push(parameters.str());
 	}
 	void QProgram::R_x(const double theta, const long qubit_num) {
-		if (qubit_num != 0 && qubit_num > qubits_amount) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
 		}
 		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit.");
+			throw std::invalid_argument("Register consists of more than 1 qubit");
 		}
 		std::stringstream parameters;
 		parameters << "R_x(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
 	void QProgram::R_y(const double theta, const long qubit_num) {
-		if (qubit_num != 0 && qubit_num > qubits_amount) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
 		}
 		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit.");
+			throw std::invalid_argument("Register consists of more than 1 qubit");
 		}
 		std::stringstream parameters;
 		parameters << "R_y(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
 	void QProgram::R_z(const double theta, const long qubit_num) {
-		if (qubit_num != 0 && qubit_num > qubits_amount) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
 		}
 		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit.");
+			throw std::invalid_argument("Register consists of more than 1 qubit");
 		}
 		std::stringstream parameters;
 		parameters << "R_z(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	void QProgram::R_x_conj(const double theta, const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "R_x_conj(" << theta << "," << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::R_y_conj(const double theta, const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "R_y_conj(" << theta << "," << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::R_z_conj(const double theta, const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "R_z_conj(" << theta << "," << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::Cnot(const long qubit_1, const long qubit_2) {
+		if (qubit_1 <= -1) {
+			throw std::invalid_argument("Invalid first qubit number: " + std::to_string(qubit_1));
+		}
+		else if (qubit_2 <= -1) {
+			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_2));
+		}
+		else if (qubit_1 == qubit_2) {
+			throw std::invalid_argument("Ыame qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
+		}
+		else if (qubit_1 != 0 && qubit_1 > qubits_amount|| qubit_2 != 0 && qubit_2 > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
+		}
+		else if (qubit_1 == 0 || qubit_2 == 0) {
+			throw std::invalid_argument("Qubit number zero does not exist");
+		}
+		std::stringstream parameters;
+		parameters << "Cnot(" << qubit_1 << "," << qubit_2 << ")";
+		command_queue.push(parameters.str());
+	}
+	void QOrogram::H(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "H(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QOrogram::X(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "X(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QOrogram::Y(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "Y(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QOrogram::Z(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "Z(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QOrogram::T(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "T(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QOrogram::T_conj(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "T_conj(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::SWAP(const long qubit_1, const long qubit_2) {
+		if (qubit_1 <= -1) {
+			throw std::invalid_argument("Invalid first qubit number: " + std::to_string(qubit_1));
+		}
+		else if (qubit_2 <= -1) {
+			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_2));
+		}
+		else if (qubit_1 == qubit_2) {
+			throw std::invalid_argument("Ыame qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
+		}
+		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
+		}
+		else if (qubit_1 == 0 || qubit_2 == 0) {
+			throw std::invalid_argument("Qubit number zero does not exist");
+		}
+		std::stringstream parameters;
+		parameters << "SWAP(" << qubit_1 << "," << qubit_2 << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::Adjacent_SWAP(const long qubit_1, const long qubit_2) {
+		if (qubit_1 <= -1) {
+			throw std::invalid_argument("Invalid first qubit number: " + std::to_string(qubit_1));
+		}
+		else if (qubit_2 <= -1) {
+			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_2));
+		}
+		else if (qubit_1 == qubit_2) {
+			throw std::invalid_argument("Ыame qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
+		}
+		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
+		}
+		else if (qubit_1 == 0 || qubit_2 == 0) {
+			throw std::invalid_argument("Qubit number zero does not exist");
+		}
+		std::stringstream parameters;
+		parameters << "Adjacent_SWAP(" << qubit_1 << "," << qubit_2 << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::CCnot(const long qubit_1, const long qubit_2, const long qubit_3) {
+		if (qubit_1 <= -1) {
+			throw std::invalid_argument("Invalid first qubit number: " + std::to_string(qubit_1));
+		}
+		else if (qubit_2 <= -1) {
+			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_2));
+		}
+		else if (qubit_3 <= -1) {
+			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_3));
+		}
+		else if (qubit_1 == qubit_2 || qubit_1 == qubit_3 || qubit_2 == qubit_3) {
+			throw std::invalid_argument("Same qubit numbers");
+		}
+		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount|| qubit_3 != 0 && qubit_3 > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
+		}
+		else if (qubit_1 == 0 || qubit_2 == 0 || qubit_3 == 0) {
+			throw std::invalid_argument("Qubit number zero does not exist");
+		}
+		std::stringstream parameters;
+		parameters << "CCnot(" << qubit_1 << "," << qubit_2 << "," << qubit_3 << ")";
+		command_queue.push(parameters.str());
+	}
 	// сделать качественно и дополнить операторами, в том числе измерения поменять тип long
 	void QProgram::Measure(const long qubit_to_measure) {
-		if (qubit_to_measure != 0 && qubit_to_measure > qubits_amount) {
+		if (qubit_to_measure <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_to_measure));
+		}
+		else if (qubit_to_measure != 0 && qubit_to_measure > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_to_measure));
 		}
 		std::stringstream parameters;
