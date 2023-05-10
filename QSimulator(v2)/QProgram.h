@@ -9,7 +9,16 @@
 
 
 namespace Work_namespace {
-
+	std::unordered_map<std::string, const int> operators_list = {
+			{"Init_reg", 100},
+			{"R_x", 101},
+			{"R_y", 102},
+			{"R_z", 103},
+			{"SWAP", 104},
+			{"Cnot", 105},
+			{"Measure", 106},
+			{"Adjacent_SWAP", 107}
+	};
 	class QProgram {
 	private:
 		std::vector<bool> answer;
