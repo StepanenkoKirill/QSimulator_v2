@@ -4,12 +4,12 @@
 #include "macro.h"
 
 namespace Work_namespace {
-	
 	class QClassic_simulator_handler {
 	private:
 		std::ifstream& instruction_stream;
 		QSimulator _sim;
 	public:
+
 		QClassic_simulator_handler() = delete;
 		QClassic_simulator_handler(std::ifstream& input) : instruction_stream(input) {}
 		/*describes translation the object file into operators sequence*/
@@ -25,6 +25,9 @@ namespace Work_namespace {
 		long read_integer_parameter(std::string& str);
 		double read_real_parameter(std::string& str);
 		int read_operator(std::string& str);
+		std::function<void(const double, const long)> R_x(const double x, const long y) {
+			return [=](const double, const long) {return _sim.R_x(x, y);};
+		}
 	};
 
 	int QClassic_simulator_handler::read_operator(std::string& str) {
@@ -82,6 +85,9 @@ namespace Work_namespace {
 		std::string tmp;
 		std::stringstream ss;
 		int command_code = 0;
+		const double x = 0.; const long y = 0;
+		std::function<void(const double, const long)> a;
+		_sim.Multycontrol_rotation({ 1,2 }, R_x(2.4, 3));
 		/*file ordered row by row*/
 		while (std::getline(instruction_stream, tmp)) {
 			command_code = read_operator(tmp);

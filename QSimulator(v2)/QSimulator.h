@@ -1,6 +1,7 @@
 #pragma once
 #include "QExecutor_interface.h"
 #include <random>
+#include <functional>
 
 namespace Work_namespace {
 
@@ -15,6 +16,8 @@ namespace Work_namespace {
 		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit) override;		
 		virtual void SWAP(const long first_qubit, const long second_qubit) override;		
 		virtual void Cnot(const long first_qubit, const long second_qubit) override;
+		void Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
+			std::function<void(const double, const long)> func);
 	};
 
 	/// <summary>
@@ -323,5 +326,11 @@ namespace Work_namespace {
 		}
 	}
 
+	void QSimulator::Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
+		std::function<void(const double, const long)> func) {
+		int x = 0;
+		return;
+	}
 
+	
 }
