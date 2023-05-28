@@ -15,6 +15,7 @@
 #define _Cnot 105
 #define _Measure 106
 #define _Adjacent_SWAP 107
+#define _Multycontrol_rotation 108
 
 
 

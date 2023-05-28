@@ -9,23 +9,14 @@
 
 
 namespace Work_namespace {
-	std::unordered_map<std::string, const int> operators_list = {
-			{"Init_reg", 100},
-			{"R_x", 101},
-			{"R_y", 102},
-			{"R_z", 103},
-			{"SWAP", 104},
-			{"Cnot", 105},
-			{"Measure", 106},
-			{"Adjacent_SWAP", 107}
-	};
+
 	class QProgram {
 	private:
 		std::vector<bool> answer;
 		std::queue<std::string> command_queue;
-		int qubits_amount = 0;
+		long qubits_amount = 0;
 	public:
-		
+
 		void Init_reg(const long amount = 0);
 
 		void R_x(const double theta, const long qubit_num = 0);
@@ -47,6 +38,9 @@ namespace Work_namespace {
 		void CCnot(const long qubit_1, const long qubit_2, const long qubit_3);
 
 		void Arbit_transform(const Matrix<std::complex<double>>& matr) {};
+		void Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
+			std::string rotation_type,
+			const double theta, const long qubit_num);
 		void Make_empty_command_queue();
 		std::vector<bool> Get_answer() const;
 
@@ -54,7 +48,7 @@ namespace Work_namespace {
 		void Measure(long qubit_to_measure = 0); // = 0 - значение по умолчанию
 	};
 
-	std::vector<bool> QProgram::Get_answer() const{
+	std::vector<bool> QProgram::Get_answer() const {
 		return answer;
 	}
 
@@ -165,9 +159,9 @@ namespace Work_namespace {
 			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_2));
 		}
 		else if (qubit_1 == qubit_2) {
-			throw std::invalid_argument("Ыame qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
+			throw std::invalid_argument("Same qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
 		}
-		else if (qubit_1 != 0 && qubit_1 > qubits_amount|| qubit_2 != 0 && qubit_2 > qubits_amount) {
+		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
 		}
 		else if (qubit_1 == 0 || qubit_2 == 0) {
@@ -177,7 +171,7 @@ namespace Work_namespace {
 		parameters << "Cnot(" << qubit_1 << "," << qubit_2 << ")";
 		command_queue.push(parameters.str());
 	}
-	void QOrogram::H(const long qubit_num) {
+	void QProgram::H(const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
 		}
@@ -191,7 +185,7 @@ namespace Work_namespace {
 		parameters << "H(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-	void QOrogram::X(const long qubit_num) {
+	void QProgram::X(const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
 		}
@@ -205,7 +199,7 @@ namespace Work_namespace {
 		parameters << "X(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-	void QOrogram::Y(const long qubit_num) {
+	void QProgram::Y(const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
 		}
@@ -219,7 +213,7 @@ namespace Work_namespace {
 		parameters << "Y(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-	void QOrogram::Z(const long qubit_num) {
+	void QProgram::Z(const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
 		}
@@ -233,7 +227,7 @@ namespace Work_namespace {
 		parameters << "Z(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-	void QOrogram::T(const long qubit_num) {
+	void QProgram::T(const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
 		}
@@ -247,7 +241,7 @@ namespace Work_namespace {
 		parameters << "T(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-	void QOrogram::T_conj(const long qubit_num) {
+	void QProgram::T_conj(const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
 		}
@@ -269,7 +263,7 @@ namespace Work_namespace {
 			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_2));
 		}
 		else if (qubit_1 == qubit_2) {
-			throw std::invalid_argument("Ыame qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
+			throw std::invalid_argument("Same qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
 		}
 		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
@@ -289,7 +283,7 @@ namespace Work_namespace {
 			throw std::invalid_argument("Invalid second qubit number: " + std::to_string(qubit_2));
 		}
 		else if (qubit_1 == qubit_2) {
-			throw std::invalid_argument("Ыame qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
+			throw std::invalid_argument("Same qubit numbers: " + std::to_string(qubit_1) + " and " + std::to_string(qubit_2));
 		}
 		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
@@ -314,7 +308,7 @@ namespace Work_namespace {
 		else if (qubit_1 == qubit_2 || qubit_1 == qubit_3 || qubit_2 == qubit_3) {
 			throw std::invalid_argument("Same qubit numbers");
 		}
-		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount|| qubit_3 != 0 && qubit_3 > qubits_amount) {
+		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount || qubit_3 != 0 && qubit_3 > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
 		}
 		else if (qubit_1 == 0 || qubit_2 == 0 || qubit_3 == 0) {
@@ -324,6 +318,36 @@ namespace Work_namespace {
 		parameters << "CCnot(" << qubit_1 << "," << qubit_2 << "," << qubit_3 << ")";
 		command_queue.push(parameters.str());
 	}
+	/*done without considering default 0 meaning for qubit number*/
+	void QProgram::Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
+		std::string rotation_type,
+		const double theta, const long qubit_num) {
+		for (const auto item : controlling_qubits) {
+			if (item <= 0 || item > this->qubits_amount) {
+				throw std::invalid_argument("Controlling qubits out of range \n");
+			}
+			if (item == qubit_num) {
+				throw std::invalid_argument("Same qubit to control and execute rotation \n");
+			}
+		}
+		if (qubit_num <= 0 || qubit_num > this->qubits_amount) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		std::stringstream parameters;
+		parameters << "Multycontrol_rotation(";
+		std::initializer_list<long>::const_iterator it, it = controlling_qubits.end() - 1;
+		for (auto it = controlling_qubits.begin(); it != controlling_qubits.end(); ++it) {
+			if (it == controlling_qubits.end() - 1) {
+				parameters << (*it) << ';';
+			}
+			else {
+				parameters << (*it) << ',';
+			}
+		}
+		parameters << rotation_type << ';' << theta << ';' << qubit_num << ')';
+		command_queue.push(parameters.str());
+	}
+
 	// сделать качественно и дополнить операторами, в том числе измерения поменять тип long
 	void QProgram::Measure(const long qubit_to_measure) {
 		if (qubit_to_measure <= -1) {
@@ -341,7 +365,7 @@ namespace Work_namespace {
 			QClassic_simulator_handler handler(in);
 			answer = handler.Run();
 			in.close();
-			remove("Debugging_test_file.txt");	
+			remove("Debugging_test_file.txt");
 		}
 		else {
 			std::cout << "An ERROR occured during syntax analisis. Check your QProgram for mistakes" << "\n";
