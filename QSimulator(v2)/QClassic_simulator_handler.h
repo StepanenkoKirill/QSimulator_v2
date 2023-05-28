@@ -55,13 +55,10 @@ namespace Work_namespace {
 		long counter = 1;
 		char c = ' ';
 		while (ss.get(c) && c != outer_delim && c != '\0') {
+			flag = true;
 			if (c == inter_delim) {
 				counter++;
 			}
-			else {
-				break;
-			}
-			flag = true;
 		}
 		if (!flag) counter = -1;
 		return counter;
@@ -156,6 +153,9 @@ namespace Work_namespace {
 				break;
 			case _Measure:
 				_sim.Measure(read_integer_parameter(tmp));
+				break;
+			case _Ph:
+				_sim.Ph(read_real_parameter(tmp), read_integer_parameter(tmp));
 				break;
 			case _Multycontrol_rotation:
 				controlling_qubtis.clear();

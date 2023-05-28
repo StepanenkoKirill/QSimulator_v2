@@ -99,14 +99,14 @@ namespace Work_namespace {
 			std::vector<std::complex<double>>* amplitudes = nullptr;
 		};
 
-		/*Standart Basis*/
+
 		virtual void R_x(const double angle, const long qubit_number = 0) {
 			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
 		};
 		virtual void R_y(const double angle, const long qubit_number = 0) {
 			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
 		};
-		virtual void R_z(const double angle, const long qubit_number = 0) = 0 {
+		virtual void R_z(const double angle, const long qubit_number = 0) {
 			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
 		};
 		virtual void SWAP(const long first_qubit, const long second_qubit) {
@@ -119,6 +119,9 @@ namespace Work_namespace {
 			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
 		};
 		virtual void Init_reg(const long qubits_quantity) {
+			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
+		}
+		virtual void Ph(const double angle, const long qubit_number = 0) {
 			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
 		}
 		virtual void Measure(const long qubit_number = 0) {
