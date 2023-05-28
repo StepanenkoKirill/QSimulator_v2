@@ -13,6 +13,7 @@ namespace Work_namespace {
 		virtual void R_x(const double angle, const long qubit_number = 0) override;
 		virtual void R_y(const double angle, const long qubit_number = 0) override;
 		virtual void R_z(const double angle, const long qubit_number = 0) override;
+		virtual void Ph(const double angle, const long qubit_number = 0) override;
 		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit) override;
 		virtual void SWAP(const long first_qubit, const long second_qubit) override;
 		virtual void Cnot(const long first_qubit, const long second_qubit) override;
@@ -203,7 +204,33 @@ namespace Work_namespace {
 			_reg[i] = temp[i];
 		}
 	};
-
+	/// <summary>
+	/// Phase shift of quantum state
+	/// </summary>
+	/// <param name="first_qubit">Angle to shift</param>
+	/// <param name="second_qubit">Qubit to make phase shift</param>
+	void QSimulator::Ph(const double angle, const long qubit_number = 0) {
+		long number_of_qubits = _reg.get_size();
+		if (!(0 < qubit_number <= number_of_qubits)) {
+			throw std::exception("Wrong qubit to execute operation");
+		}
+		std::complex<double> a_4 = std::polar(1.0, angle);
+		long space_size = 1 << number_of_qubits;
+		long subspace_nm = 1 << (number_of_qubits - qubit_number);
+		long times_m = 1 << (qubit_number);
+		std::vector<std::complex<double>> temp(space_size, 0);
+		long pos = 0;
+		for (long i = 0; i < times_m; ++i) {
+			for (long j = 0; j < subspace_nm; ++j) {
+				if (i % 2 != 0) {
+					temp[i * subspace_nm + j] = a_4 * _reg[i * subspace_nm + j];
+				}
+			}
+		}
+		for (long i = 0; i < space_size; ++i) {
+			_reg[i] = temp[i];
+		}
+	}
 	/// <summary>
 	/// Swaps to adjacent qubits
 	/// </summary>

@@ -25,6 +25,7 @@ namespace Work_namespace {
 		void R_x_conj(const double theta, const long qubit_num = 0);
 		void R_y_conj(const double theta, const long qubit_num = 0);
 		void R_z_conj(const double theta, const long qubit_num = 0);
+		void Ph(const double angle, const long qubit_num);
 		void Cnot(const long qubit_1, const long qubit_2);
 
 		void H(const long qubit_num = 0);
@@ -316,6 +317,20 @@ namespace Work_namespace {
 		}
 		std::stringstream parameters;
 		parameters << "CCnot(" << qubit_1 << "," << qubit_2 << "," << qubit_3 << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::Ph(const double angle, const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "Ph(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
 	/*done without considering default 0 meaning for qubit number*/

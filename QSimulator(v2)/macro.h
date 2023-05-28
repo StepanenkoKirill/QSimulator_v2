@@ -16,6 +16,8 @@
 #define _Measure 106
 #define _Adjacent_SWAP 107
 #define _Multycontrol_rotation 108
+#define _Multy_X_aux 109
+#define _Ph 110
 
 
 

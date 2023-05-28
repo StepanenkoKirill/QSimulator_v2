@@ -15,7 +15,9 @@ namespace Work_namespace {
 	{"Cnot", 105},
 	{"Measure", 106},
 	{"Adjacent_SWAP", 107},
-	{"Multycontrol_rotation", 108}
+	{"Multycontrol_rotation", 108},
+	{"Multy_X_aux", 109},
+	{"Ph", 110}
 	};
 	/*the analising subautomats don't recognize every opp-ty as our input is strict enough
 	  except the order of the logic*/
@@ -67,6 +69,10 @@ namespace Work_namespace {
 			answer = true;
 			break;
 		case _Adjacent_SWAP:
+			out << instruction << '(' << parameteres << '\n';
+			answer = true;
+			break;
+		case _Ph:
 			out << instruction << '(' << parameteres << '\n';
 			answer = true;
 			break;
