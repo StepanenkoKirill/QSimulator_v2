@@ -13,11 +13,12 @@ namespace Work_namespace {
 		virtual void R_x(const double angle, const long qubit_number = 0) override;
 		virtual void R_y(const double angle, const long qubit_number = 0) override;
 		virtual void R_z(const double angle, const long qubit_number = 0) override;
-		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit) override;		
-		virtual void SWAP(const long first_qubit, const long second_qubit) override;		
+		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit) override;
+		virtual void SWAP(const long first_qubit, const long second_qubit) override;
 		virtual void Cnot(const long first_qubit, const long second_qubit) override;
-		void Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
-			std::function<void(const double, const long)> func);
+
+		void Multycontrol_rotation(std::vector<long> controlling_qubits,
+			std::function<void(const double, const long)> func, const double param_1, const long param_2);
 	};
 
 	/// <summary>
@@ -106,7 +107,7 @@ namespace Work_namespace {
 	/// </summary>
 	/// <param name="angle">An agle of rotation</param>
 	/// <param name="qubit_number">Number of qubit to execute</param>
-	void QSimulator::R_x(const double angle, const long qubit_number = 0) {
+	void QSimulator::R_x(const double angle, const long qubit_number) {
 		long number_of_qubits = _reg.get_size();
 		if (!(0 < qubit_number <= number_of_qubits)) {
 			throw std::exception("Wrong qubit to execute operation");
@@ -141,7 +142,7 @@ namespace Work_namespace {
 	/// </summary>
 	/// <param name="angle">An agle of rotation</param>
 	/// <param name="qubit_number">Number of qubit to execute</param>
-	void QSimulator::R_y(const double angle, const long qubit_number = 0) {
+	void QSimulator::R_y(const double angle, const long qubit_number) {
 		long number_of_qubits = _reg.get_size();
 		if (!(0 < qubit_number <= number_of_qubits)) {
 			throw std::exception("Wrong qubit to execute operation");
@@ -176,7 +177,7 @@ namespace Work_namespace {
 /// </summary>
 /// <param name="angle">An agle of rotation</param>
 /// <param name="qubit_number">Number of qubit to execute</param>
-	void QSimulator::R_z(const double angle, const long qubit_number = 0) {
+	void QSimulator::R_z(const double angle, const long qubit_number) {
 		long number_of_qubits = _reg.get_size();
 		if (!(0 < qubit_number <= number_of_qubits)) {
 			throw std::exception("Wrong qubit to execute operation");
@@ -326,11 +327,59 @@ namespace Work_namespace {
 		}
 	}
 
-	void QSimulator::Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
-		std::function<void(const double, const long)> func) {
-		int x = 0;
-		return;
+	void QSimulator::Multycontrol_rotation(std::vector<long> controlling_qubits,
+		std::function<void(const double, const long)> func, const double param_1, const long param_2) {
+		for (const auto item : controlling_qubits) {
+			if (item <= 0 || item > _reg.get_size()) {
+				std::cout << "RUNTIME ERROR: Controlling qubits out of range \n";
+			}
+			if (item == param_2) {
+				std::cout << "RUNTIME ERROR: Same qubit to control and execute rotation \n";
+			}
+		}
+		long size = _reg.get_size();
+		long space_size = 1 << size;
+		long control_qubits_number = controlling_qubits.size();
+		std::vector<std::complex<double>> temp(_reg.get_amps());
+		func(param_1, param_2);
+
+		std::vector<long> temp;
+		std::unordered_map<long, std::vector<long>> contents_to_calculate_0_reg_index;
+		for (auto item : controlling_qubits) {
+			//counter for controling qubit to change group
+			contents_to_calculate_0_reg_index[item].push_back(0);
+			//number of indexes while in group
+			contents_to_calculate_0_reg_index[item].push_back(1 << (size - item));
+		}
+		long i = 0, j = 0;
+		bool flag = true;
+		/*here we do checking of cond-n to ensure that all nedded qubits are 0*/
+		while (i < space_size) {
+			flag = true;
+			for (auto& qubit : contents_to_calculate_0_reg_index) {
+				j = i;
+				if (qubit.second[0] % 2 == 0) {
+					++j;
+					if (j % qubit.second[1] == 0) {
+						++qubit.second[0];
+					}
+				}
+				else {
+					++j;
+					if (j % qubit.second[1] == 0) {
+						++qubit.second[0];
+					}
+					flag = false;
+					break;
+				}
+			}
+			/*here we repair amplitudes that shouldn't have been transformed with func*/
+			if (flag) {
+				_reg[i] = temp[i];
+			}
+			++i;
+		}
 	}
 
-	
+
 }

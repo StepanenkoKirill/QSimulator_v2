@@ -24,9 +24,17 @@ namespace Work_namespace {
 
 		long read_integer_parameter(std::string& str);
 		double read_real_parameter(std::string& str);
+		std::string read_string_parameter(std::string& str);
 		int read_operator(std::string& str);
-		std::function<void(const double, const long)> R_x(const double x, const long y) {
-			return [=](const double, const long) {return _sim.R_x(x, y);};
+		long parameters_counter(std::string& str, char inter_delim, char outer_delim);
+		std::function<void(const double, const long)> R_x() {
+			return [&](const double x, const long y) {return _sim.R_x(x, y);};
+		}
+		std::function<void(const double, const long)> R_y() {
+			return [&](const double x, const long y) {return _sim.R_y(x, y);};
+		}
+		std::function<void(const double, const long)> R_z() {
+			return [&](const double x, const long y) {return _sim.R_z(x, y);};
 		}
 	};
 
@@ -41,6 +49,24 @@ namespace Work_namespace {
 		return ans;
 	}
 
+	long QClassic_simulator_handler::parameters_counter(std::string& str, char inter_delim, char outer_delim) {
+		std::stringstream ss(str);
+		bool flag = false;
+		long counter = 1;
+		char c = ' ';
+		while (ss.get(c) && c != outer_delim && c != '\0') {
+			if (c == inter_delim) {
+				counter++;
+			}
+			else {
+				break;
+			}
+			flag = true;
+		}
+		if (!flag) counter = -1;
+		return counter;
+	}
+
 	double QClassic_simulator_handler::read_real_parameter(std::string& str) {
 		double answer = 0.;
 		std::stringstream ss(str);
@@ -48,7 +74,7 @@ namespace Work_namespace {
 		char c = '0.';
 		/*remake the complex if close*/
 		while (ss.get(c)) {
-			if (c != ',' && c != '\0') {
+			if (c != ',' && c != '\0' && c != ';') {
 				param.push_back(c);
 			}
 			else {
@@ -67,7 +93,7 @@ namespace Work_namespace {
 		std::string param, remainder;
 		char c = '0';
 		while (ss.get(c)) {
-			if (c != ',' && c != '\0') {
+			if (c != ',' && c != '\0' && c != ';') {
 				param.push_back(c);
 			}
 			else {
@@ -80,14 +106,30 @@ namespace Work_namespace {
 		return answer;
 	}
 
+	std::string QClassic_simulator_handler::read_string_parameter(std::string& str) {
+		std::stringstream ss(str);
+		std::string param, remainder;
+		char c = ' ';
+		while (ss.get(c)) {
+			if (c != ',' && c != '\0' && c != ';') {
+				param.push_back(c);
+			}
+			else {
+				break;
+			}
+		}
+		std::getline(ss, remainder);
+		str = remainder;
+		return param;
+	}
+
 	std::vector<bool> QClassic_simulator_handler::Run() {
 		std::vector<bool> answer;
 		std::string tmp;
 		std::stringstream ss;
+		std::vector<long> controlling_qubtis;
 		int command_code = 0;
-		const double x = 0.; const long y = 0;
-		std::function<void(const double, const long)> a;
-		_sim.Multycontrol_rotation({ 1,2 }, R_x(2.4, 3));
+		long counter = 0, multycontroll_command = 0;
 		/*file ordered row by row*/
 		while (std::getline(instruction_stream, tmp)) {
 			command_code = read_operator(tmp);
@@ -114,6 +156,29 @@ namespace Work_namespace {
 				break;
 			case _Measure:
 				_sim.Measure(read_integer_parameter(tmp));
+				break;
+			case _Multycontrol_rotation:
+				controlling_qubtis.clear();
+				counter = parameters_counter(tmp, ',', ';');
+				for (long i = 0; i < counter; ++i) {
+					controlling_qubtis.push_back(read_integer_parameter(tmp));
+				}
+				multycontroll_command = operators_list.at(read_string_parameter(tmp));
+				switch (multycontroll_command) {
+				case _R_x:
+					_sim.Multycontrol_rotation(controlling_qubtis, R_x(), read_real_parameter(tmp),
+						read_integer_parameter(tmp));
+					break;
+				case _R_y:
+					_sim.Multycontrol_rotation(controlling_qubtis, R_y(), read_real_parameter(tmp),
+						read_integer_parameter(tmp));
+					break;
+				case _R_z:
+					_sim.Multycontrol_rotation(controlling_qubtis, R_z(), read_real_parameter(tmp),
+						read_integer_parameter(tmp));
+					break;
+				}
+
 				break;
 			default:
 				std::cout << "RUNTIME ERROR: Can't find such operator \n";
