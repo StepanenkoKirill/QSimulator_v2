@@ -22,10 +22,17 @@ namespace Work_namespace {
 		void R_x(const double theta, const long qubit_num = 0);
 		void R_y(const double theta, const long qubit_num = 0);
 		void R_z(const double theta, const long qubit_num = 0);
+
+
 		void R_x_conj(const double theta, const long qubit_num = 0);
 		void R_y_conj(const double theta, const long qubit_num = 0);
 		void R_z_conj(const double theta, const long qubit_num = 0);
-		void Ph(const double angle, const long qubit_num);
+
+
+		void P(const double angle, const long qubit_num);
+		void P_conj(const double angle, const long qubit_num);
+		void Phase(const double angle, const long qubit_num);
+		void Phase_conj(const double angle, const long qubit_num);
 		void Cnot(const long qubit_1, const long qubit_2);
 
 		void H(const long qubit_num = 0);
@@ -34,10 +41,12 @@ namespace Work_namespace {
 		void Z(const long qubit_num = 0);
 		void T(const long qubit_num = 0);
 		void T_conj(const long qubit_num = 0);
+		void S(const long qubit_num = 0);
+		void S_conj(const long qubit_num = 0);
 		void SWAP(const long qubit_1, const long qubit_2);
 		void Adjacent_SWAP(const long qubit_1, const long qubit_2);
-		void CCnot(const long qubit_1, const long qubit_2, const long qubit_3);
-
+		void Toffoli(const long qubit_1, const long qubit_2, const long qubit_3);
+		void Multy_X_aux(std::initializer_list<long> controlling_qubits, long auxiliary_qubit_num, long target_qubit_num);
 		void Arbit_transform(const Matrix<std::complex<double>>& matr) {};
 		void Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
 			std::string rotation_type,
@@ -46,7 +55,9 @@ namespace Work_namespace {
 		std::vector<bool> Get_answer() const;
 
 
-		void Measure(long qubit_to_measure = 0); // = 0 - значение по умолчанию
+		void Measure(long qubit_to_measure);
+		void Measure_all();
+		void Execute(); // call point for curquit to be executed
 	};
 
 	std::vector<bool> QProgram::Get_answer() const {
@@ -63,9 +74,51 @@ namespace Work_namespace {
 			Make_empty_command_queue();
 			qubits_amount = 0;
 		}
+		if (amount == 0) throw std::exception("Register should have at least 1 qubit \n");
 		qubits_amount = amount;
 		std::stringstream parameters;
 		parameters << "Init_reg(" << qubits_amount << ")";
+		command_queue.push(parameters.str());
+	}
+	/// <summary>
+	/// Multycontrol X(NOT) operation with an auxiliary qubit
+	/// The qubit can be dirty
+	/// So if your reg has size n than you can make the transform with n-2 controlling qubits
+	/// Of course, if you have ancilla in reg, using the transformation is still appropriate
+	/// </summary>
+	/// <param name="controlling_qubits">List of controlling qubits</param>
+	/// <param name="auxiliary_qubit_num">Auxiliary qubit</param>
+	/// <param name="target_qubit_num">Target qubit</param>
+	void QProgram::Multy_X_aux(std::initializer_list<long> controlling_qubits, long auxiliary_qubit_num, long target_qubit_num) {
+		if(controlling_qubits.size() > this->qubits_amount - 2) throw std::invalid_argument(
+			"There  mustn't be more than n-2 controlling qubits\n");
+		for (const auto item : controlling_qubits) {
+			if (item <= 0 || item > this->qubits_amount) {
+				throw std::invalid_argument("Controlling qubits out of range \n");
+			}
+			if (item == auxiliary_qubit_num) {
+				throw std::invalid_argument("Same auxiliary and control qubit \n");
+			}
+			if (item == target_qubit_num) {
+				throw std::invalid_argument("Same target and control qubit \n");
+			}
+		}
+		if (auxiliary_qubit_num <= 0 || target_qubit_num <=0 || auxiliary_qubit_num > this->qubits_amount ||
+			target_qubit_num > this->qubits_amount) {
+			throw std::invalid_argument("Invalid auxiliary or target qubit's numbers");
+		}
+		std::stringstream parameters;
+		parameters << "Multy_X_aux(";
+		std::initializer_list<long>::const_iterator it;
+		for (auto it = controlling_qubits.begin(); it != controlling_qubits.end(); ++it) {
+			if (it == controlling_qubits.end() - 1) {
+				parameters << (*it) << ';';
+			}
+			else {
+				parameters << (*it) << ',';
+			}
+		}
+		parameters << auxiliary_qubit_num << ';' << target_qubit_num << ')';
 		command_queue.push(parameters.str());
 	}
 	void QProgram::R_x(const double theta, const long qubit_num) {
@@ -110,6 +163,7 @@ namespace Work_namespace {
 		parameters << "R_z(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+
 	void QProgram::R_x_conj(const double theta, const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
@@ -152,6 +206,7 @@ namespace Work_namespace {
 		parameters << "R_z_conj(" << theta << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+
 	void QProgram::Cnot(const long qubit_1, const long qubit_2) {
 		if (qubit_1 <= -1) {
 			throw std::invalid_argument("Invalid first qubit number: " + std::to_string(qubit_1));
@@ -256,6 +311,36 @@ namespace Work_namespace {
 		parameters << "T_conj(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+
+	void QProgram::S(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "S(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::S_conj(const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "S_conj(" << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+
 	void QProgram::SWAP(const long qubit_1, const long qubit_2) {
 		if (qubit_1 <= -1) {
 			throw std::invalid_argument("Invalid first qubit number: " + std::to_string(qubit_1));
@@ -296,7 +381,7 @@ namespace Work_namespace {
 		parameters << "Adjacent_SWAP(" << qubit_1 << "," << qubit_2 << ")";
 		command_queue.push(parameters.str());
 	}
-	void QProgram::CCnot(const long qubit_1, const long qubit_2, const long qubit_3) {
+	void QProgram::Toffoli(const long qubit_1, const long qubit_2, const long qubit_3) {
 		if (qubit_1 <= -1) {
 			throw std::invalid_argument("Invalid first qubit number: " + std::to_string(qubit_1));
 		}
@@ -309,7 +394,7 @@ namespace Work_namespace {
 		else if (qubit_1 == qubit_2 || qubit_1 == qubit_3 || qubit_2 == qubit_3) {
 			throw std::invalid_argument("Same qubit numbers");
 		}
-		else if (qubit_1 != 0 && qubit_1 > qubits_amount || qubit_2 != 0 && qubit_2 > qubits_amount || qubit_3 != 0 && qubit_3 > qubits_amount) {
+		else if (qubit_1 > qubits_amount || qubit_2 > qubits_amount ||  qubit_3 > qubits_amount) {
 			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubits_amount));
 		}
 		else if (qubit_1 == 0 || qubit_2 == 0 || qubit_3 == 0) {
@@ -319,7 +404,7 @@ namespace Work_namespace {
 		parameters << "CCnot(" << qubit_1 << "," << qubit_2 << "," << qubit_3 << ")";
 		command_queue.push(parameters.str());
 	}
-	void QProgram::Ph(const double angle, const long qubit_num) {
+	void QProgram::P(const double angle, const long qubit_num) {
 		if (qubit_num <= -1) {
 			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
 		}
@@ -330,7 +415,49 @@ namespace Work_namespace {
 			throw std::invalid_argument("Register consists of more than 1 qubit");
 		}
 		std::stringstream parameters;
-		parameters << "Ph(" << angle << "," << qubit_num << ")";
+		parameters << "P(" << angle << "," << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::P_conj(const double angle, const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "P_conj(" << angle << "," << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::Phase(const double angle, const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "Phase(" << angle << "," << qubit_num << ")";
+		command_queue.push(parameters.str());
+	}
+	void QProgram::Phase_conj(const double angle, const long qubit_num) {
+		if (qubit_num <= -1) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num != 0 && qubit_num > qubits_amount) {
+			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
+		}
+		else if (qubit_num == 0 && qubits_amount > 1) {
+			throw std::invalid_argument("Register consists of more than 1 qubit");
+		}
+		std::stringstream parameters;
+		parameters << "Phase_conj(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
 	/*done without considering default 0 meaning for qubit number*/
@@ -350,7 +477,7 @@ namespace Work_namespace {
 		}
 		std::stringstream parameters;
 		parameters << "Multycontrol_rotation(";
-		std::initializer_list<long>::const_iterator it, it = controlling_qubits.end() - 1;
+		std::initializer_list<long>::const_iterator it = controlling_qubits.end() - 1;
 		for (auto it = controlling_qubits.begin(); it != controlling_qubits.end(); ++it) {
 			if (it == controlling_qubits.end() - 1) {
 				parameters << (*it) << ';';
@@ -363,29 +490,50 @@ namespace Work_namespace {
 		command_queue.push(parameters.str());
 	}
 
-	// сделать качественно и дополнить операторами, в том числе измерения поменять тип long
 	void QProgram::Measure(const long qubit_to_measure) {
-		if (qubit_to_measure <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_to_measure));
+		if (qubits_amount == 0) {
+			throw std::invalid_argument("Invalid operation: There is nothing to measure \n");
 		}
-		else if (qubit_to_measure != 0 && qubit_to_measure > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_to_measure));
+		if (qubit_to_measure <= 0 || qubit_to_measure > qubits_amount) {
+			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_to_measure));
 		}
 		std::stringstream parameters;
 		parameters << "Measure(" << qubit_to_measure << ")";
 		command_queue.push(parameters.str());
-		if (Analyser(command_queue)) {
-			std::ifstream in;
-			in.open("Debugging_test_file.txt");
-			QClassic_simulator_handler handler(in);
-			answer = handler.Run();
+		this->qubits_amount--;
+	}
+	void QProgram::Measure_all() {
+		if (qubits_amount == 0) {
+			throw std::invalid_argument("Invalid operation: There is nothing to measure \n");
+		}
+		std::stringstream ss;
+		ss << "Measure_all(" << ")";
+		command_queue.push(ss.str());
+		this->qubits_amount = 0;
+	}
+	void QProgram::Execute() {
+		if (command_queue.empty()) {
+			throw std::exception("Invalid operation: There is nothing to execute \n");
+		}
+		std::ifstream in;
+		in.open("Debugging_test_file.txt");
+		if (in.is_open()) {
 			in.close();
 			remove("Debugging_test_file.txt");
 		}
 		else {
+			in.close();
+		}
+		if (Analyser(command_queue)) {
+			in.open("Debugging_test_file.txt");
+			QClassic_simulator_handler handler(in);
+			answer = handler.Run();
+			in.close();
+		}
+		else {
 			std::cout << "An ERROR occured during syntax analisis. Check your QProgram for mistakes" << "\n";
 		}
-		return;
+		in.close();
 	}
 }
 

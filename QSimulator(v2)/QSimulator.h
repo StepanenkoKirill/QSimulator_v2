@@ -9,17 +9,16 @@ namespace Work_namespace {
 		QRegister _reg;
 	public:
 		virtual void Init_reg(const long qubits_quantity) override;
-		virtual void Measure(const long qubit_number = 0) override;
-		virtual void R_x(const double angle, const long qubit_number = 0) override;
-		virtual void R_y(const double angle, const long qubit_number = 0) override;
-		virtual void R_z(const double angle, const long qubit_number = 0) override;
-		virtual void Ph(const double angle, const long qubit_number = 0) override;
-		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit) override;
-		virtual void SWAP(const long first_qubit, const long second_qubit) override;
-		virtual void Cnot(const long first_qubit, const long second_qubit) override;
-
-		void Multycontrol_rotation(std::vector<long> controlling_qubits,
-			std::function<void(const double, const long)> func, const double param_1, const long param_2);
+		virtual bool Measure(const long qubit_number = 0) override;
+		virtual std::vector<bool> Measure_all() override;
+		virtual void R_x(const double angle, const long qubit_number = 0);
+		virtual void R_y(const double angle, const long qubit_number = 0);
+		virtual void R_z(const double angle, const long qubit_number = 0);
+		virtual void P(const double angle, const long qubit_number = 0);
+		virtual void Phase(const double angle, const long qubit_number = 0);
+		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit);
+		virtual void SWAP(const long first_qubit, const long second_qubit);
+		virtual void Cnot(const long first_qubit, const long second_qubit);
 	};
 
 	/// <summary>
@@ -31,10 +30,10 @@ namespace Work_namespace {
 	}
 
 	/// <summary>
-	/// Measures register or exact qubit
+	/// Measures exact qubit
 	/// </summary>
-	/// <param name="qubit_number">Default parameter is set to 0</param>
-	void QSimulator::Measure(const long qubit_number) {
+	/// <param name="qubit_number">Qubit to be measured</param>
+	bool QSimulator::Measure(const long qubit_number) {
 		/*It's supposed that we do the measurement of 1 qubit from 1 to _reg size
 		  It's better to distinguish the measurements of all reg-r and the exact qubit
 		  for more clear interface*/
@@ -91,7 +90,7 @@ namespace Work_namespace {
 			}
 		}
 		/*	here we reduce the size of our reg and replace its content with the correct answer	*/
-		_reg.Project(projected_space_size);
+		_reg.Project(number_of_qubits);
 		for (long i = 0; i < projected_space_size; ++i) {
 			_reg[i] = temp[i];
 		}
@@ -101,8 +100,17 @@ namespace Work_namespace {
 		for (auto p : m) {
 			std::cout << p.first << " generated " << p.second << " times\n";
 		}*/
+		return answer;
 	}
-
+	std::vector<bool> QSimulator::Measure_all() {
+		std::vector<bool> answer;
+		long number_of_qubits_in_reg = _reg.get_size();
+		for (long i = number_of_qubits_in_reg; i >= 1; --i) {
+			answer.push_back(Measure(i));
+		}
+		std::reverse(answer.begin(), answer.end());
+		return answer;
+	}
 	/// <summary>
 	/// Makes a rotation with angle about X ax on qubit_number qubit
 	/// </summary>
@@ -205,11 +213,11 @@ namespace Work_namespace {
 		}
 	};
 	/// <summary>
-	/// Phase shift of quantum state
+	/// Phase shift about Z ax of quantum state
 	/// </summary>
 	/// <param name="first_qubit">Angle to shift</param>
 	/// <param name="second_qubit">Qubit to make phase shift</param>
-	void QSimulator::Ph(const double angle, const long qubit_number = 0) {
+	void QSimulator::P(const double angle, const long qubit_number) {
 		long number_of_qubits = _reg.get_size();
 		if (!(0 < qubit_number <= number_of_qubits)) {
 			throw std::exception("Wrong qubit to execute operation");
@@ -230,6 +238,38 @@ namespace Work_namespace {
 		for (long i = 0; i < space_size; ++i) {
 			_reg[i] = temp[i];
 		}
+
+	}
+	/// <summary>
+	/// Generic phase shift of quantum state
+	/// </summary>
+	/// <param name="first_qubit">Angle to shift</param>
+	/// <param name="second_qubit">Qubit to make generic phase shift</param>
+	void QSimulator::Phase(const double angle, const long qubit_number) {
+		long number_of_qubits = _reg.get_size();
+		if (!(0 < qubit_number <= number_of_qubits)) {
+			throw std::exception("Wrong qubit to execute operation");
+		}
+		std::complex<double> a_4 = std::polar(1.0, angle);
+		long space_size = 1 << number_of_qubits;
+		long subspace_nm = 1 << (number_of_qubits - qubit_number);
+		long times_m = 1 << (qubit_number);
+		std::vector<std::complex<double>> temp(space_size, 0);
+		long pos = 0;
+		for (long i = 0; i < times_m; ++i) {
+			for (long j = 0; j < subspace_nm; ++j) {
+				if (i % 2 == 0) {
+					temp[i * subspace_nm + j] = a_4 * _reg[i * subspace_nm + j];
+				}
+				else {
+					temp[i * subspace_nm + j] = a_4 * _reg[i * subspace_nm + j];
+				}
+			}
+		}
+		for (long i = 0; i < space_size; ++i) {
+			_reg[i] = temp[i];
+		}
+
 	}
 	/// <summary>
 	/// Swaps to adjacent qubits
@@ -353,60 +393,4 @@ namespace Work_namespace {
 			SWAP(fir, sec);
 		}
 	}
-
-	void QSimulator::Multycontrol_rotation(std::vector<long> controlling_qubits,
-		std::function<void(const double, const long)> func, const double param_1, const long param_2) {
-		for (const auto item : controlling_qubits) {
-			if (item <= 0 || item > _reg.get_size()) {
-				std::cout << "RUNTIME ERROR: Controlling qubits out of range \n";
-			}
-			if (item == param_2) {
-				std::cout << "RUNTIME ERROR: Same qubit to control and execute rotation \n";
-			}
-		}
-		long size = _reg.get_size();
-		long space_size = 1 << size;
-		long control_qubits_number = controlling_qubits.size();
-		std::vector<std::complex<double>> temp(_reg.get_amps());
-		func(param_1, param_2);
-
-		std::vector<long> temp;
-		std::unordered_map<long, std::vector<long>> contents_to_calculate_0_reg_index;
-		for (auto item : controlling_qubits) {
-			//counter for controling qubit to change group
-			contents_to_calculate_0_reg_index[item].push_back(0);
-			//number of indexes while in group
-			contents_to_calculate_0_reg_index[item].push_back(1 << (size - item));
-		}
-		long i = 0, j = 0;
-		bool flag = true;
-		/*here we do checking of cond-n to ensure that all nedded qubits are 0*/
-		while (i < space_size) {
-			flag = true;
-			for (auto& qubit : contents_to_calculate_0_reg_index) {
-				j = i;
-				if (qubit.second[0] % 2 == 0) {
-					++j;
-					if (j % qubit.second[1] == 0) {
-						++qubit.second[0];
-					}
-				}
-				else {
-					++j;
-					if (j % qubit.second[1] == 0) {
-						++qubit.second[0];
-					}
-					flag = false;
-					break;
-				}
-			}
-			/*here we repair amplitudes that shouldn't have been transformed with func*/
-			if (flag) {
-				_reg[i] = temp[i];
-			}
-			++i;
-		}
-	}
-
-
 }

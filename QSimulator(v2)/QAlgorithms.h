@@ -49,7 +49,8 @@ namespace Work_namespace {
 				}
 			}
 			counter++; final_iterations_col = counter * iterations;
-			prog.Measure();
+			prog.Measure_all();
+			prog.Execute();
 			result = prog.Get_answer();
 			index = result[0];
 			for (int i = 1; i < result.size(); ++i) {
