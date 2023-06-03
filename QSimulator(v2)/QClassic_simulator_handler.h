@@ -152,33 +152,16 @@ namespace Work_namespace {
 				_sim.Adjacent_SWAP(read_integer_parameter(tmp), read_integer_parameter(tmp));
 				break;
 			case _Measure:
-				_sim.Measure(read_integer_parameter(tmp));
+				answer.push_back(_sim.Measure(read_integer_parameter(tmp)));
 				break;
-			case _Ph:
-				_sim.Ph(read_real_parameter(tmp), read_integer_parameter(tmp));
+			case _Measure_all:
+				answer = _sim.Measure_all();
 				break;
-			case _Multycontrol_rotation:
-				controlling_qubtis.clear();
-				counter = parameters_counter(tmp, ',', ';');
-				for (long i = 0; i < counter; ++i) {
-					controlling_qubtis.push_back(read_integer_parameter(tmp));
-				}
-				multycontroll_command = operators_list.at(read_string_parameter(tmp));
-				switch (multycontroll_command) {
-				case _R_x:
-					_sim.Multycontrol_rotation(controlling_qubtis, R_x(), read_real_parameter(tmp),
-						read_integer_parameter(tmp));
-					break;
-				case _R_y:
-					_sim.Multycontrol_rotation(controlling_qubtis, R_y(), read_real_parameter(tmp),
-						read_integer_parameter(tmp));
-					break;
-				case _R_z:
-					_sim.Multycontrol_rotation(controlling_qubtis, R_z(), read_real_parameter(tmp),
-						read_integer_parameter(tmp));
-					break;
-				}
-
+			case _Phase:
+				_sim.Phase(read_real_parameter(tmp), read_integer_parameter(tmp));
+				break;
+			case _P:
+				_sim.P(read_real_parameter(tmp), read_integer_parameter(tmp));
 				break;
 			default:
 				std::cout << "RUNTIME ERROR: Can't find such operator \n";
@@ -208,52 +191,4 @@ namespace Work_namespace {
 		return answer;
 	}
 
-	//template<typename T_1, typename T_2>
-	//std::vector<bool> QClassic_simulator_handler::run() {
-	// std::vector<bool> answer;
-	// std::string tmp;
-	// std::stringstream ss;
-	// T_1 int_par, int_par_2 = 0;
-	// T_2 real_par = 0.;
-	// int command_code = 0;
-	// /*file ordered row by row*/
-	// while (std::getline(instruction_stream, tmp)) {
-	// command_code = read_operator(tmp);
-	// /*have changed tmp for reading params*/
-	// switch (command_code) {
-	// case _Init_reg:
-	// int_par = read_integer_parameter(tmp);
-	// //int_par = read_parameter<T_1>(tmp, std::stol);
-	// _sim.Init_reg(int_par);
-	// break;
-	// case _R_x:
-	// real_par = read_real_parameter(tmp);
-	// int_par = read_integer_parameter(tmp);
-	// _sim.R_x(real_par, int_par);
-	// break;
-	// case _R_y:
-	// real_par = read_real_parameter(tmp);
-	// int_par = read_integer_parameter(tmp);
-	// _sim.R_y(real_par, int_par);
-	// break;
-	// case _R_z:
-	// real_par = read_real_parameter(tmp);
-	// int_par = read_integer_parameter(tmp);
-	// _sim.R_z(real_par, int_par);
-	// break;
-	// case _SWAP:
-	// int_par = read_integer_parameter(tmp);
-	// int_par_2 = read_integer_parameter(tmp);
-	// _sim.SWAP(int_par, int_par_2);
-	// break;
-	// case _Measure:
-	// int_par = read_integer_parameter(tmp);
-	// _sim.Measure(int_par);
-	// break;
-	// default:
-	// std::cout « "RUNTIME ERROR: Can't find such operator \n";
-	// }
-	// }
-	// return answer;
-	//}
 }

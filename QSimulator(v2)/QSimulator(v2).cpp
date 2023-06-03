@@ -3,37 +3,31 @@
 #include <fstream>
 #include "QProgram.h"
 #include "QAlgorithms.h"
+#include <list>
 
+
+void f(std::vector<long>& _c_qub_list, long _aux, long _trgt, std::ostream& out) {
+	if (_c_qub_list.size() == 2) {
+		for (auto item : _c_qub_list) {
+			out << item << " ";
+		}
+		out << '\n';
+	}
+	else if (_c_qub_list.size() == 1) {
+		out << 2 << '\n';
+	}
+	else {
+		_c_qub_list.pop_back();
+		f(_c_qub_list, _trgt, _aux, out);
+	}
+}
 int main()
 {
     QLab::QProgram* program;
     program = new QLab::QProgram;
-	program->Init_reg(5);
-	program->Cnot(1, 2);
-	std::string input_instruction;
-	int grammar_state = 0;
-	std::ifstream in;
-	int num = 0;
-	in.open("Debugging_test_file.txt");
-//	while (getline(in, input_instruction, ';')) {
-//		std::cout << input_instruction << std::endl;
-//		//std::cout << input_instruction[input_instruction.length() - 1] << std::endl;
-//		++num;
-//	}
-//	std::cout << num << std::endl;
-//	in.close();
-	class ii {
-		int x = 0;
-	public:
-		virtual void do_sth();
-	};
-
-	class n_iter : ii {
-		int y = 0;
-	public:
-		void do_sth() override{
-
-		}
-
-	};
+	program->Init_reg(2);
+	program->H(1);
+	program->Measure_all();
+	program->Execute();
+	std::cout << program->Get_answer()[0];
 }
