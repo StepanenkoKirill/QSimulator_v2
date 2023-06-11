@@ -18,7 +18,6 @@
 #define _Cnot 105
 #define _Measure 106
 #define _Measure_all 126
-#define _Adjacent_SWAP 107
 #define _Multycontrol_rotation 108
 #define _Multy_X_aux 109
 #define _P 110
@@ -34,6 +33,8 @@
 #define _S_conj 122
 #define _Phase 124
 #define _Phase_conj 125
+#define _UMultycontrol_rotation 127
+#define _Arbit_transform 128
 
 
 
