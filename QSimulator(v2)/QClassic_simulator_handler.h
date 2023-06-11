@@ -26,7 +26,7 @@ namespace Work_namespace {
 		double read_real_parameter(std::string& str);
 		std::string read_string_parameter(std::string& str);
 		int read_operator(std::string& str);
-		long parameters_counter(std::string& str, char inter_delim, char outer_delim);
+		long parameters_counter(std::string& str, char inter_delim, char outer_delim);/*
 		std::function<void(const double, const long)> R_x() {
 			return [&](const double x, const long y) {return _sim.R_x(x, y);};
 		}
@@ -35,7 +35,7 @@ namespace Work_namespace {
 		}
 		std::function<void(const double, const long)> R_z() {
 			return [&](const double x, const long y) {return _sim.R_z(x, y);};
-		}
+		}*/
 	};
 
 	int QClassic_simulator_handler::read_operator(std::string& str) {
@@ -126,6 +126,8 @@ namespace Work_namespace {
 		std::stringstream ss;
 		std::vector<long> controlling_qubtis;
 		int command_code = 0;
+		long l1 = 0, l2 = 0, l3 = 0;
+		double d1 = 0., d2 = 0., d3 = 0.;
 		long counter = 0, multycontroll_command = 0;
 		/*file ordered row by row*/
 		while (std::getline(instruction_stream, tmp)) {
@@ -137,31 +139,47 @@ namespace Work_namespace {
 				_sim.Init_reg(read_integer_parameter(tmp));
 				break;
 			case _R_x:
-				_sim.R_x(read_real_parameter(tmp), read_integer_parameter(tmp));
+				d1 = read_real_parameter(tmp);
+				l1 = read_integer_parameter(tmp);
+				_sim.R_x(d1, l1);
+//				_sim.Debug_reg_content(std::cout);
 				break;
 			case _R_y:
-				_sim.R_y(read_real_parameter(tmp), read_integer_parameter(tmp));
+				d1 = read_real_parameter(tmp);
+				l1 = read_integer_parameter(tmp);
+				_sim.R_y(d1, l1);
+//				_sim.Debug_reg_content(std::cout);
 				break;
 			case _R_z:
-				_sim.R_z(read_real_parameter(tmp), read_integer_parameter(tmp));
-				break;
-			case _SWAP:
-				_sim.SWAP(read_integer_parameter(tmp), read_integer_parameter(tmp));
-				break;
-			case _Adjacent_SWAP:
-				_sim.Adjacent_SWAP(read_integer_parameter(tmp), read_integer_parameter(tmp));
+				d1 = read_real_parameter(tmp);
+				l1 = read_integer_parameter(tmp);
+				_sim.R_z(d1, l1);
+//				_sim.Debug_reg_content(std::cout);
 				break;
 			case _Measure:
 				answer.push_back(_sim.Measure(read_integer_parameter(tmp)));
 				break;
 			case _Measure_all:
+				_sim.Debug_reg_content(std::cout);
 				answer = _sim.Measure_all();
 				break;
 			case _Phase:
-				_sim.Phase(read_real_parameter(tmp), read_integer_parameter(tmp));
+				d1 = read_real_parameter(tmp);
+				l1 = read_integer_parameter(tmp);
+				_sim.Phase(d1, l1);
+//				_sim.Debug_reg_content(std::cout);
 				break;
 			case _P:
-				_sim.P(read_real_parameter(tmp), read_integer_parameter(tmp));
+				d1 = read_real_parameter(tmp);
+				l1 = read_integer_parameter(tmp);
+				_sim.P(d1, l1);
+//				_sim.Debug_reg_content(std::cout);
+				break;
+			case _Cnot:
+				l1 = read_integer_parameter(tmp);
+				l2 = read_integer_parameter(tmp);
+				_sim.Cnot(l1, l2);
+//				_sim.Debug_reg_content(std::cout);
 				break;
 			default:
 				std::cout << "RUNTIME ERROR: Can't find such operator \n";
