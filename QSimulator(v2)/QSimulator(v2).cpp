@@ -3,37 +3,60 @@
 #include <fstream>
 #include "QProgram.h"
 #include "QAlgorithms.h"
+#include <list>
+#include <Eigen/Dense>
 
+
+void f(std::vector<long>& _c_qub_list, long _aux, long _trgt, std::ostream& out) {
+	if (_c_qub_list.size() == 2) {
+		for (auto item : _c_qub_list) {
+			out << item << " ";
+		}
+		out << '\n';
+	}
+	else if (_c_qub_list.size() == 1) {
+		out << 2 << '\n';
+	}
+	else {
+		_c_qub_list.pop_back();
+		f(_c_qub_list, _trgt, _aux, out);
+	}
+}
 int main()
 {
+	Eigen::MatrixXcd U, L1, L0, R0, R1, S, C;
+	long target, new_size;
+	target = 0;
+	U.resize(8, 8);
+	std::complex<double> x(1. / sqrt(2));
+	U << x, 0, 0, 0, 0, 0, 0, x,
+		0, x, 0, 0, 0, 0, x, 0,
+		0, 0, x, 0, 0, x, 0, 0,
+		0, 0, 0, 1, 0, 0, 0, 0,
+		0, 0, 0, 0, 1, 0, 0, 0,
+		0, 0, x, 0, 0, -x, 0, 0,
+		0, x, 0, 0, 0, 0, -x, 0,
+		x, 0, 0, 0, 0, 0, 0, -x;
+
     QLab::QProgram* program;
     program = new QLab::QProgram;
-	program->Init_reg(5);
-	program->Cnot(1, 2);
-	std::string input_instruction;
-	int grammar_state = 0;
-	std::ifstream in;
-	int num = 0;
-	in.open("Debugging_test_file.txt");
-//	while (getline(in, input_instruction, ';')) {
-//		std::cout << input_instruction << std::endl;
-//		//std::cout << input_instruction[input_instruction.length() - 1] << std::endl;
-//		++num;
-//	}
-//	std::cout << num << std::endl;
-//	in.close();
-	class ii {
-		int x = 0;
-	public:
-		virtual void do_sth();
-	};
 
-	class n_iter : ii {
-		int y = 0;
-	public:
-		void do_sth() override{
-
+	try {
+		program->Init_reg(3);
+		program->X(1);
+		program->X(2);
+		program->Arbit_transform(U);
+		//program->R_x(M_PI, 3);
+		program->UMultycontrol_rotation({ 1,2 }, "R_x", { M_PI / 2, -M_PI / 2, M_PI / 2 , M_PI / 2 }, 3);
+		program->Measure_all();
+		program->Execute();
+		for (auto item : program->Get_answer()) {
+			std::cout << item << " ";
 		}
+	}
+	catch (std::exception ex) {
+		std::cout << ex.what();
+	}
 
-	};
+
 }

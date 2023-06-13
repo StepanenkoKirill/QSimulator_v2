@@ -46,9 +46,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Debugging_test_file.txt">
-      <Filter>Файлы ресурсов</Filter>
-    </Text>
     <Text Include="Documentation.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>

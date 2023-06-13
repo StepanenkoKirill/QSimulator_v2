@@ -19,21 +19,9 @@ namespace Work_namespace {
 			void Initialize(const long number_of_qubits_to_set) {
 				long space_size = 1 << number_of_qubits_to_set;
 				this->size = number_of_qubits_to_set;
-				if (this->size != 0) {
-					amplitudes->clear();
-					amplitudes->resize(space_size);
-					amplitudes->at(0) = 1.;
-				}
-				else if (this->size == 0) {
-					if (amplitudes) {
-						delete amplitudes;
-					}
-					amplitudes = new std::vector<std::complex<double>>(space_size, 0.);
-					amplitudes->at(0) = 1.;
-				}
-				else {
-					std::cout << "An undefined behaviour";
-				}
+				delete amplitudes;
+				amplitudes = new std::vector<std::complex<double>>(space_size, 0.);
+				amplitudes->at(0) = 1.;
 			}
 			void Add_ancilla_qubit(std::vector<std::complex<double>>& initial_amplitudes) {
 				if (initial_amplitudes.size() != 2) {
@@ -77,8 +65,10 @@ namespace Work_namespace {
 				}
 			}
 
-			void Project(const long& space_size) {
+			void Project(const long new_size) {
 				//add check for 2^n space_size
+				long space_size = 1 << new_size;
+				this->size = new_size;
 				amplitudes->resize(space_size);
 			}
 			long get_size() const { return size; }
@@ -99,34 +89,11 @@ namespace Work_namespace {
 			std::vector<std::complex<double>>* amplitudes = nullptr;
 		};
 
+		virtual void Init_reg(const long qubits_quantity) = 0;
+		
+		virtual bool Measure(const long qubit_number) = 0;
 
-		virtual void R_x(const double angle, const long qubit_number = 0) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		};
-		virtual void R_y(const double angle, const long qubit_number = 0) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		};
-		virtual void R_z(const double angle, const long qubit_number = 0) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		};
-		virtual void SWAP(const long first_qubit, const long second_qubit) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		};
-		virtual void Adjacent_SWAP(const long first_qubit, const long second_qubit) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		};
-		virtual void Cnot(const long first_qubit, const long second_qubit) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		};
-		virtual void Init_reg(const long qubits_quantity) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		}
-		virtual void Ph(const double angle, const long qubit_number = 0) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		}
-		virtual void Measure(const long qubit_number = 0) {
-			std::cout << "RUNTIME ERROR: The QExecutor_interface can't create objects \n";
-		}
+		virtual std::vector<bool> Measure_all() = 0;
 
 	};
 }
