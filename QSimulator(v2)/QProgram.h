@@ -599,7 +599,7 @@ namespace Work_namespace {
 	/// </summary>
 	void QProgram::Measure_all() {
 		if (qubits_amount == 0) {
-			throw std::invalid_argument("Invalid operation: There is nothing to measure \n");
+			throw std::invalid_argument("Measure_all::ERROR: Invalid operation. There is nothing to measure \n");
 		}
 		std::stringstream ss;
 		ss << "Measure_all(" << ")";

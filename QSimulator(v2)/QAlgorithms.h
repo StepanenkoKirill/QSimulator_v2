@@ -60,7 +60,6 @@ namespace Work_namespace {
 			} while (Oracle(index, index) != -1.);
 			return index;
 		}
-		long function(int x){}
 	}
 	
 }
