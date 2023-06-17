@@ -1,3 +1,21 @@
 /*QLab library vers. 1.2 for testing and designing quantum algorithms*/
 
 /////////////////////////////////////////////////////////////
+
+A remark:
+_________
+
+That could've been much prettier to get rid of class representation with QProgram
+and to leave functions. That'll allow to make the code like that:
+
+namespace Quantum_Program {
+	Init_reg(4);
+	H(1);
+	Measure(1);
+}
+
+Then, how do we get the result?
+Perhaps, in the same way as it is now, but without classes.
+We just define static variable or data structure or container to 
+write the answer. And afterwords we can call the scope of the quntum program
+____________________________________________________________________________

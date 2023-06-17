@@ -307,30 +307,23 @@ namespace Work_namespace {
 	}
 	void one_qubit_arbitrary_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& matrix, 
 		const long qubit_num, std::ofstream& out) {
-		std::complex<double>  det = matrix.determinant(); // matrix(0,0)*matrix(1,1)-matrix(1, 0)* matrix(0, 1);
+		std::complex<double>  det = matrix.determinant();
 		double delta = atan2(det.imag(), det.real()) / matrix.rows();
-		std::complex<double> A = exp(std::complex<double>(0, -1) * delta) * matrix
-		(0, 0);
-		std::complex<double> B = exp(std::complex<double>(0, -1) * delta) * matrix
-		(0, 1); //to comply with the other y-gate definition
-
-		double sw = sqrt(pow((double)B.imag(), 2) + pow((double)B.real(), 2) +
+		std::complex<double> A = exp(std::complex<double>(0, -1) * delta) * matrix(0, 0);
+		std::complex<double> B = exp(std::complex<double>(0, -1) * delta) * matrix(0, 1); 
+		double s = sqrt(pow((double)B.imag(), 2) + pow((double)B.real(), 2) +
 			pow((double)A.imag(), 2));
-		double wx = 0;
-		double wy = 0;
-		double wz = 0;
+		double x = 0, y = 0, z = 0;
 
-		if (sw > 0)
-		{
-			wx = B.imag() / sw;
-			wy = B.real() / sw;
-			wz = A.imag() / sw;
+		if (s > 0)		{
+			x = B.imag() / s;
+			y = B.real() / s;
+			z = A.imag() / s;
 		}
-		double t1 = atan2(A.imag(), A.real()); double t2 = atan2(B.imag(), B.real());
-		double alpha = t1 + t2;
-		double gamma = t1 - t2;
-		double beta = 2 * atan2(sw * sqrt(pow((double)wx, 2) + pow((double)wy, 2)), sqrt(pow
-		((double)A.real(), 2) + pow((wz * sw), 2)));
+		double t1 = atan2(A.imag(), A.real()), t2 = atan2(B.imag(), B.real());
+		double alpha = t1 + t2, gamma = t1 - t2;
+		double beta = 2 * atan2(s * sqrt(pow((double)x, 2) + pow((double)y, 2)), sqrt(pow
+		((double)A.real(), 2) + pow((z * s), 2)));
 		out << "R_z(" << -gamma << "," << qubit_num << ")\n";
 		out << "R_y(" << -beta << "," << qubit_num << ")\n";
 		out << "R_z(" << -alpha << "," << qubit_num << ")\n";
@@ -699,9 +692,8 @@ namespace Work_namespace {
 					matrix << read_complex(tmp);
 				}
 			}
-			
-			
-
+			Shannon_decomposition_helper(deq_qubits, deq_angles, matrix, out);
+			answer = true;
 			break;
 		case _Measure:
 			if (parsed_register_size > 0) {

@@ -18,16 +18,16 @@ namespace Work_namespace {
 		long qubits_amount = 0;
 	public:
 
-		void Init_reg(const long amount = 0);
+		void Init_reg(const long amount);
 
-		void R_x(const double angle, const long qubit_num = 0);
-		void R_y(const double angle, const long qubit_num = 0);
-		void R_z(const double angle, const long qubit_num = 0);
+		void R_x(const double angle, const long qubit_num);
+		void R_y(const double angle, const long qubit_num);
+		void R_z(const double angle, const long qubit_num);
 
 
-		void R_x_conj(const double angle, const long qubit_num = 0);
-		void R_y_conj(const double angle, const long qubit_num = 0);
-		void R_z_conj(const double angle, const long qubit_num = 0);
+		void R_x_conj(const double angle, const long qubit_num);
+		void R_y_conj(const double angle, const long qubit_num);
+		void R_z_conj(const double angle, const long qubit_num);
 
 
 		void P(const double angle, const long qubit_num);
@@ -36,14 +36,14 @@ namespace Work_namespace {
 		void Phase_conj(const double angle, const long qubit_num);
 		void Cnot(const long qubit_1, const long qubit_2);
 
-		void H(const long qubit_num = 0);
-		void X(const long qubit_num = 0);
-		void Y(const long qubit_num = 0);
-		void Z(const long qubit_num = 0);
-		void T(const long qubit_num = 0);
-		void T_conj(const long qubit_num = 0);
-		void S(const long qubit_num = 0);
-		void S_conj(const long qubit_num = 0);
+		void H(const long qubit_num);
+		void X(const long qubit_num);
+		void Y(const long qubit_num);
+		void Z(const long qubit_num);
+		void T(const long qubit_num);
+		void T_conj(const long qubit_num);
+		void S(const long qubit_num);
+		void S_conj(const long qubit_num);
 		void SWAP(const long qubit_1, const long qubit_2);
 		void Toffoli(const long qubit_1, const long qubit_2, const long qubit_3);
 		void Multy_X_aux(std::initializer_list<long> controlling_qubits, long auxiliary_qubit_num, long target_qubit_num);
@@ -62,11 +62,18 @@ namespace Work_namespace {
 		void Execute(); // call point for cirquit to be executed
 	};
 
+	/// <summary>
+	/// Method to get answer from simulator
+	/// </summary>
+	/// <returns> - Bool vector of stationary state</returns>
 	std::vector<bool> QProgram::Get_answer() const {
 		if (answer.empty()) throw std::exception("Get_answer::ERROR: No measurement has been executed \n\n");
 		return answer;
 	}
 
+	/// <summary>
+	/// Makes empty the queue of commands that you do while writing your program
+	/// </summary>
 	void QProgram::Make_empty_command_queue() {
 		while (!command_queue.empty()) {
 			command_queue.pop();
@@ -97,9 +104,9 @@ namespace Work_namespace {
 	/// So if your reg has size n than you can make the transform with n-2 controlling qubits
 	/// Of course, if you have ancilla in reg, using the transformation is still appropriate
 	/// </summary>
-	/// <param name="controlling_qubits">List of controlling qubits</param>
-	/// <param name="auxiliary_qubit_num">Auxiliary qubit</param>
-	/// <param name="target_qubit_num">Target qubit</param>
+	/// <param name="controlling_qubits"> - List of controlling qubits</param>
+	/// <param name="auxiliary_qubit_num"> - Auxiliary qubit</param>
+	/// <param name="target_qubit_num"> - Target qubit</param>
 	void QProgram::Multy_X_aux(std::initializer_list<long> controlling_qubits, long auxiliary_qubit_num, long target_qubit_num) {
 		if(controlling_qubits.size() > this->qubits_amount - 2) throw std::invalid_argument(
 			"Multy_X_aux::ERROR: There  mustn't be more than n-2 controlling qubits\n\n");
@@ -140,92 +147,89 @@ namespace Work_namespace {
 		parameters << auxiliary_qubit_num << ';' << target_qubit_num << ')';
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Rotation operator about the X axis
+	/// </summary>
+	/// <param name="angle"> - the double type angle to rotate</param>
+	/// <param name="qubit_num"> - number of qubit to be executed on</param>
 	void QProgram::R_x(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("R_x::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "R_x(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Rotation operator about the Y axis
+	/// </summary>
+	/// <param name="angle"> - the double type angle to rotate</param>
+	/// <param name="qubit_num"> - number of qubit to be executed on</param>
 	void QProgram::R_y(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("R_y::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "R_y(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Rotation operator about the Z axis
+	/// </summary>
+	/// <param name="angle"> - the double type angle to rotate</param>
+	/// <param name="qubit_num"> - number of qubit to be executed on</param>
 	void QProgram::R_z(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("R_z::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "R_z(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-
+	/// <summary>
+	/// Rotation adjoint operator about the X axis
+	/// </summary>
+	/// <param name="angle"> - the double type angle to rotate</param>
+	/// <param name="qubit_num"> - number of qubit to be executed on</param>
 	void QProgram::R_x_conj(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("R_x_conj::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "R_x_conj(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Rotation adjoint operator about the Y axis
+	/// </summary>
+	/// <param name="angle"> - the double type angle to rotate</param>
+	/// <param name="qubit_num"> - number of qubit to be executed on</param>
 	void QProgram::R_y_conj(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("R_y_conj::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "R_y_conj(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Rotation adjoint operator about the Z axis
+	/// </summary>
+	/// <param name="angle"> - the double type angle to rotate</param>
+	/// <param name="qubit_num"> - number of qubit to be executed on</param>
 	void QProgram::R_z_conj(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("R_z_conj::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "R_z_conj(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-
+	/// <summary>
+	/// Operates Cnot on qubits in register. Qubits aren't necessary to be adjacent
+	/// </summary>
+	/// <param name="qubit_1"> - controlling qubit</param>
+	/// <param name="qubit_2"> - target qubit</param>
 	void QProgram::Cnot(const long qubit_1, const long qubit_2) {
 		if (qubit_1 <= 0 || qubit_1 > qubits_amount) {
 			throw std::invalid_argument("Cnot::ERROR: Invalid controlling qubit number: " + std::to_string(qubit_1));
@@ -243,117 +247,107 @@ namespace Work_namespace {
 		parameters << "Cnot(" << qubit_1 << "," << qubit_2 << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// An Hadamard gate
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::H(const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("H::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "H(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Quantum 1 qubit Not equivalent
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::X(const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("X::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "X(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Pauli gate. Rotation about Y on pi radians
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::Y(const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("Y::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "Y(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Pauli gate. Rotation about Z on pi radians
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::Z(const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("Z::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "Z(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Gate pi/8. Rotation about Z on pi/4 radians
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::T(const long qubit_num) {
-		if (qubit_num <= 0) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("T::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "T(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Gate pi/8 adjoint. Rotation about Z on pi/4 radians
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::T_conj(const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("T_conj::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "T_conj(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-
+	/// <summary>
+	/// Rotation about Z on pi/2 radians
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::S(const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument(" Invalid number of qubit to operate with: " + qubit_num);
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("S::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "S(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Rotation adjoint about Z on pi/2 radians
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to be executed on</param>
 	void QProgram::S_conj(const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("S_conj::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "S_conj(" << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-
+	/// <summary>
+	/// Exchanges the qubit's values
+	/// </summary>
+	/// <param name="qubit_1"> - the first qubit in SWAP pair</param>
+	/// <param name="qubit_2"> - the second qubit in SWAP pair</param>
 	void QProgram::SWAP(const long qubit_1, const long qubit_2) {
 		if (qubit_1 <= 0 || qubit_2 <= 0 || qubit_1 > qubits_amount || qubit_2 > qubits_amount) {
 			throw std::invalid_argument("SWAP::ERROR: Qubits to swap are out of range\n\n");
@@ -368,7 +362,13 @@ namespace Work_namespace {
 		parameters << "SWAP(" << qubit_1 << "," << qubit_2 << ")";
 		command_queue.push(parameters.str());
 	}
-	
+	/// <summary>
+	/// Toffoli or CCnot gate. Changes the last qubit only if the first 2 qubits are ones
+	/// Qubits shouldn't necessarily be adjacent
+	/// </summary>
+	/// <param name="qubit_1"> - 1 controlling qubit</param>
+	/// <param name="qubit_2"> - 2 controlling qubit</param>
+	/// <param name="qubit_3"> - target qubit</param>
 	void QProgram::Toffoli(const long qubit_1, const long qubit_2, const long qubit_3) {
 		if (qubit_1 <= 0) {
 			throw std::invalid_argument("Toffoli::ERROR: Invalid first qubit number: " + std::to_string(qubit_1));
@@ -392,63 +392,67 @@ namespace Work_namespace {
 		parameters << "Toffoli(" << qubit_1 << "," << qubit_2 << "," << qubit_3 << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Phase shift gate.Rotation about Z axis on phi radians angle.
+	/// </summary>
+	/// <param name="angle"> - the angle to rotate</param>
+	/// <param name="qubit_num"> - the qubit to be executed on</param>
 	void QProgram::P(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("P::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "P(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Phase shift adjoint gate.Rotation about Z axis on phi radians angle.
+	/// </summary>
+	/// <param name="angle"> - the angle to rotate</param>
+	/// <param name="qubit_num"> - the qubit to be executed on</param>
 	void QProgram::P_conj(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("P_conj::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "P_conj(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Generic phase shift. Can be useful to represent the exact value of gates after Bloch
+	/// representation
+	/// </summary>
+	/// <param name="angle"> - the angle to rotate</param>
+	/// <param name="qubit_num"> - the qubit to be executed</param>
 	void QProgram::Phase(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("Phase::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "Phase(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Generic phase shift adjoint. Can be useful to represent the exact value of gates after Bloch
+	/// representation
+	/// </summary>
+	/// <param name="angle"> - the angle to rotate</param>
+	/// <param name="qubit_num"> - the qubit to be executed</param>
 	void QProgram::Phase_conj(const double angle, const long qubit_num) {
-		if (qubit_num <= -1) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num != 0 && qubit_num > qubits_amount) {
-			throw std::invalid_argument("Invalid number of qubit to operate with: " + std::to_string(qubit_num));
-		}
-		else if (qubit_num == 0 && qubits_amount > 1) {
-			throw std::invalid_argument("Register consists of more than 1 qubit");
+		if (qubit_num <= 0 || qubit_num > qubits_amount) {
+			throw std::invalid_argument("Phase_conj::ERROR: target qubit is out of range - " + std::to_string(qubit_num));
 		}
 		std::stringstream parameters;
 		parameters << "Phase_conj(" << angle << "," << qubit_num << ")";
 		command_queue.push(parameters.str());
 	}
-	/*done without considering default 0 meaning for qubit number*/
+	/// <summary>
+	/// The gate of multicontrol rotation about X,Y,Z axes
+	/// </summary>
+	/// <param name="controlling_qubits"> - the list of controlling qubits</param>
+	/// <param name="rotation_type"> - the type of rotation</param>
+	/// <param name="angle"> - the angle to rotate on</param>
+	/// <param name="qubit_num"> - the qubit to be executed on</param>
 	void QProgram::Multycontrol_rotation(std::initializer_list<long> controlling_qubits,
 		std::string rotation_type,
 		const double angle, const long qubit_num) {
@@ -541,7 +545,11 @@ namespace Work_namespace {
 		parameters << qubit_num << ')';
 		command_queue.push(parameters.str());
 	}
-
+	/// <summary>
+	/// An arbitrary unitary transformation. Use Eigen::MatrixXcd to define unitary matrix of
+	/// your own. Make sure it's unitary, though you'll've been told if it's not.
+	/// </summary>
+	/// <param name="matr"></param>
 	void QProgram::Arbit_transform(const Eigen::Ref<const Eigen::MatrixXcd>&  matr) {
 		long space_size = 1 << qubits_amount;
 		if (!matr.isUnitary()) {
@@ -567,18 +575,28 @@ namespace Work_namespace {
 		}
 		command_queue.push(parameters.str());
 	}
+	/// <summary>
+	/// Measure operation on exact qubit. 
+	/// Note: When you measure the qubit, the register "shrinks" in twice. So, if you wil try to measure
+	/// afterwords with the same qubits numbers as they were on the previous step, that'll be another qubits,
+	/// as a metter of fact. Thus, you'd better measure carefully
+	/// </summary>
+	/// <param name="qubit_to_measure">The number of qubit to be measured</param>
 	void QProgram::Measure(const long qubit_to_measure) {
 		if (qubits_amount == 0) {
-			throw std::invalid_argument("Invalid operation: There is nothing to measure \n");
+			throw std::invalid_argument("Measure::ERROR: Invalid operation. There is nothing to measure \n");
 		}
 		if (qubit_to_measure <= 0 || qubit_to_measure > qubits_amount) {
-			throw std::invalid_argument("Invalid qubit number: " + std::to_string(qubit_to_measure));
+			throw std::invalid_argument("Measure::ERROR: target qubit is out of range - " + std::to_string(qubit_to_measure));
 		}
 		std::stringstream parameters;
 		parameters << "Measure(" << qubit_to_measure << ")";
 		command_queue.push(parameters.str());
 		this->qubits_amount--;
 	}
+	/// <summary>
+	/// Measures the whole register at once
+	/// </summary>
 	void QProgram::Measure_all() {
 		if (qubits_amount == 0) {
 			throw std::invalid_argument("Invalid operation: There is nothing to measure \n");
@@ -588,9 +606,13 @@ namespace Work_namespace {
 		command_queue.push(ss.str());
 		this->qubits_amount = 0;
 	}
+	/// <summary>
+	/// The call point of the calculation. Execute if you sure that your program is correct and ready to be
+	/// send to some executor.
+	/// </summary>
 	void QProgram::Execute() {
 		if (command_queue.empty()) {
-			throw std::exception("Invalid operation: There is nothing to execute \n");
+			throw std::exception("Execute::ERROR: Invalid operation. The command queue is empty \n");
 		}
 		std::ifstream in;
 		in.open("Debugging_test_file.txt");

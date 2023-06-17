@@ -6,6 +6,9 @@
 #include <list>
 #include <Eigen/Dense>
 
+namespace QLab {
+	QProgram* q = new QProgram;
+}
 
 void f(std::vector<long>& _c_qub_list, long _aux, long _trgt, std::ostream& out) {
 	if (_c_qub_list.size() == 2) {
@@ -24,6 +27,7 @@ void f(std::vector<long>& _c_qub_list, long _aux, long _trgt, std::ostream& out)
 }
 int main()
 {
+
 	Eigen::MatrixXcd U, L1, L0, R0, R1, S, C;
 	long target, new_size;
 	target = 0;
@@ -57,6 +61,5 @@ int main()
 	catch (std::exception ex) {
 		std::cout << ex.what();
 	}
-
-
+	
 }
