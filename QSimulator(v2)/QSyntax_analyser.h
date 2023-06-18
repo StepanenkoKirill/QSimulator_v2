@@ -9,6 +9,9 @@
 #include <unsupported/Eigen/MatrixFunctions>
 
 namespace Work_namespace {
+	/// <summary>
+	/// table of provided operators
+	/// </summary>
 	std::unordered_map<std::string, const int> operators_list = {
 	{"Init_reg", 100},
 	{"R_x", 101},
@@ -39,13 +42,31 @@ namespace Work_namespace {
 	{"Phase_conj", 125},
 	{"Phase", 124}
 	};
+
+	/// <summary>
+	/// current register size during compilation of quantum program
+	/// </summary>
 	static long parsed_register_size = 0;
+
+	/// <summary>
+	/// helper function for Hadamard decomposition
+	/// </summary>
+	/// <param name="qubit_num"> - qubit to execute</param>
+	/// <param name="out"> - stream to be put in</param>
 	void h_decomposition_helper(long qubit_num, std::ofstream& out) {
 		out << "R_x(" << M_PI_2 << "," << qubit_num << ')' << '\n';
 		out << "R_z(" << M_PI_2 << "," << qubit_num << ')' << '\n';
 		out << "R_x(" << M_PI_2 << "," << qubit_num << ')' << '\n';
 		out << "Phase(" << M_PI_2 << "," << qubit_num << ')' << '\n';
 	}
+
+	/// <summary>
+	/// helper function for Toffoli decomposition
+	/// </summary>
+	/// <param name="_q1"> - 1 controlling qubit</param>
+	/// <param name="_q2"> - 2 controlling qubit</param>
+	/// <param name="_trgt"> - target qubit</param>
+	/// <param name="out"> - stream to be put in</param>
 	void toffoli_decomposition_helper(long _q1, long _q2, long _trgt, std::ofstream& out) {
 		h_decomposition_helper(_trgt, out);
 		out << "Cnot(" << _q2 << ',' << _trgt << ')' << '\n';
@@ -64,12 +85,28 @@ namespace Work_namespace {
 		out << "P(" << M_PI_4 << "," << _q1 << ')' << '\n';
 		out << "P(" << M_PI_2 << "," << _q2 << ')' << '\n';
 	}
+
+	/// <summary>
+	/// function to read complex numbers
+	/// </summary>
+	/// <param name="str"> - complex value as string</param>
+	/// <returns>Returns complex</returns>
 	std::complex<double> read_complex(std::string& str) {
 		std::stringstream ss(str);
 		std::complex<double> complex;
 		ss >> complex;
 		return complex;
 	}
+
+	/// <summary>
+	/// helper function for Multy_X_aux
+	/// </summary>
+	/// <param name="_c_qub_list"> - list of controlling qubits</param>
+	/// <param name="start"> - index in the list where we start from</param>
+	/// <param name="end"> - index in the list where we end</param>
+	/// <param name="_aux"> - number of auxiliary qubit</param>
+	/// <param name="_trgt"> - target qubit</param>
+	/// <param name="out"> -  - stream to be put in</param>
 	void multy_x_aux_decomposition_helper(std::list<long>& _c_qub_list, long start, long end, long _aux, long _trgt,
 			std::ofstream& out) {
 
@@ -112,6 +149,15 @@ namespace Work_namespace {
 			_c_qub_list.erase(it);
 		}
 	}
+
+	/// <summary>
+	/// helper function for UMultycontrol_rotation
+	/// </summary>
+	/// <param name="c_qub"> - list of controlling qubits</param>
+	/// <param name="ang"> - list of angles for rotation</param>
+	/// <param name="rotation"> - type of rotation</param>
+	/// <param name="trg"> - target qubit</param>
+	/// <param name="out"> - stream to be put in</param>
 	void umultycontrol_rotation_decomposition_helper(std::deque<long>& c_qub, std::deque<double>& ang,
 		std::string rotation, const long trg, std::ofstream& out) {
 		long gray_0 = 0, gray_1 = 0, c_index = 0;
@@ -145,6 +191,12 @@ namespace Work_namespace {
 		out << rotation << '(' << ang[j - 1] << ',' << trg << ")\n";
 		out << "Cnot(" << c_qub[c_index_max - c_index] << ',' << trg << ")\n";
 	}
+
+	/// <summary>
+	/// Makes matrix to be used to get the final angles of rotation
+	/// </summary>
+	/// <param name="M_k"> - Complex matrix</param>
+	/// <param name="size"> - Matrix size</param>
 	void make_M_k_matrix(Eigen::Ref<Eigen::MatrixXcd> M_k, long size) {
 		long gray_0 = 0, gray_1 = 0;
 		long j = 0;
@@ -155,6 +207,21 @@ namespace Work_namespace {
 			}
 		}
 	}
+
+	/// <summary>
+	/// cosine-sine decomposition; 
+	/// it's up to the theorem that you can decompose a unitary into U=RDL*; 
+	/// R = R_0 0 0 R_1; L = L_0 0 0 L_1; D = C -S S C; 
+	/// C^2 + S^2 = 1, (R,L)_i, D are also Unitary; 
+	/// S is sufficient in parameteres as the angles in Ñ,S are supposed to be the same
+	/// </summary>
+	/// <param name="U"> - Initial matrix</param>
+	/// <param name="L0"> - top left corner L matrix</param>
+	/// <param name="L1"> - bottom  right coremer L matrix</param>
+	/// <param name="R0"> - top left corner R matrix</param>
+	/// <param name="R1"> - bottom  right coremer R matrix</param>
+	/// <param name="S"> - S matrix</param>
+	/// <returns></returns>
 	bool cosine_sine_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& U, Eigen::Ref<Eigen::MatrixXcd> L0, Eigen::Ref<Eigen::MatrixXcd> L1, Eigen::Ref<
 		Eigen::MatrixXcd> R0, Eigen::Ref<Eigen::MatrixXcd> R1, Eigen::Ref<Eigen::MatrixXcd> S) {
 
@@ -253,6 +320,14 @@ namespace Work_namespace {
 		return true;
 	}
 	
+	/// <summary>
+	/// Demultiplexing arbitrary helper function: G = V R_z W; 
+	/// </summary>
+	/// <param name="G"> - Initial matrix</param>
+	/// <param name="V"> - one of matrices in decomposition</param>
+	/// <param name="W"> - one of matrices in decomposition</param>
+	/// <param name="R_z_matrix"> - one of matrices in decomposition corresponding to R_z multiplexor</param>
+	/// <returns></returns>
 	bool UMulticontroled_arbitrary_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& G,
 		Eigen::Ref<Eigen::MatrixXcd> V, Eigen::Ref<Eigen::MatrixXcd> W, Eigen::Ref<Eigen::MatrixXcd> R_z_matrix) {
 		long new_size = G.cols() >> 1;
@@ -263,7 +338,8 @@ namespace Work_namespace {
 		if (G0_G1adj == G0_G1adj.adjoint()) {
 			Eigen::SelfAdjointEigenSolver<Eigen::MatrixXcd> eigensolver(G0_G1adj);
 			if (eigensolver.info() != Eigen::Success) {
-				std::cout << "COMPILE ERROR:: Failed to make eigen decomposition\n";
+				std::cout << "UMulticontroled_arbitrary_decomposition_helper::COMPILE ERROR: Failed to make eigen decomposition\n";
+				std::cout << "-------------------------------------------------------------------------------------------------\n";
 				return false;
 			}
 			V = eigensolver.eigenvectors();
@@ -276,7 +352,8 @@ namespace Work_namespace {
 		else {
 			Eigen::ComplexEigenSolver<Eigen::MatrixXcd> cmplx_eigensolver(G0_G1adj);
 			if (cmplx_eigensolver.info() != Eigen::Success) {
-				std::cout << "COMPILE ERROR:: Failed to make eigen decomposition\n";
+				std::cout << "UMulticontroled_arbitrary_decomposition_helper::COMPILE ERROR: Failed to make eigen decomposition\n";
+				std::cout << "-------------------------------------------------------------------------------------------------\n";
 				return false;
 			}
 			V = cmplx_eigensolver.eigenvectors();
@@ -289,6 +366,12 @@ namespace Work_namespace {
 		return true;
 	}
 
+	/// <summary>
+	/// function to get angles to be substituted in Uniformly multicontrolled rotation
+	/// </summary>
+	/// <param name="D"> - diagonal matrix for angles to be made from</param>
+	/// <param name="M_k"> - matrix to select correct signes before the angles</param>
+	/// <returns></returns>
 	Eigen::VectorXd make_real_angles_R_z(const Eigen::Ref<const Eigen::MatrixXcd>& D, const Eigen::Ref<const Eigen::MatrixXcd>& M_k) {
 		std::complex<double> i(0, 1);
 		Eigen::VectorXcd alpha = D.asDiagonal();
@@ -298,6 +381,12 @@ namespace Work_namespace {
 		return theta.array().real();
 	}
 
+	/// <summary>
+	/// function to get angles to be substituted in Uniformly multicontrolled rotation
+	/// </summary>
+	/// <param name="D"> - diagonal matrix for angles to be made from</param>
+	/// <param name="M_k"> - matrix to select correct signes before the angles</param>
+	/// <returns></returns>
 	Eigen::VectorXd make_real_angles_R_y(const Eigen::Ref<const Eigen::MatrixXcd>& S, const Eigen::Ref<const Eigen::MatrixXcd>& M_k) {
 		Eigen::VectorXcd alpha = S.asDiagonal();
 		alpha.array().asin();
@@ -305,6 +394,12 @@ namespace Work_namespace {
 		Eigen::VectorXcd theta = M_k.colPivHouseholderQr().solve(alpha);
 		return theta.array().real();
 	}
+	/// <summary>
+	/// Z-Y-Z decomposition
+	/// </summary>
+	/// <param name="matrix"> - initial one-qubit matrix</param>
+	/// <param name="qubit_num"> - target qubit</param>
+	/// <param name="out"> - stream to be put in</param>
 	void one_qubit_arbitrary_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& matrix, 
 		const long qubit_num, std::ofstream& out) {
 		std::complex<double>  det = matrix.determinant();
@@ -329,6 +424,14 @@ namespace Work_namespace {
 		out << "R_z(" << -alpha << "," << qubit_num << ")\n";
 	}
 	
+	/// <summary>
+	/// Quantum Shannon decomposition; 
+	/// Decomposes arbitrary complex transformation into basic operators
+	/// </summary>
+	/// <param name="_c_qub_list"> - list for storing controling qubits</param>
+	/// <param name="_angles"> - list for storing angles of rotation</param>
+	/// <param name="U"> - initial matrix to be decomposed</param>
+	/// <param name="out"> - stream to be put in</param>
 	void Shannon_decomposition_helper(std::deque<long>& _c_qub_list, std::deque<double>& _angles,
 		Eigen::MatrixXcd& U, std::ofstream& out) {
 		if (U.cols() == 2) {
@@ -381,8 +484,15 @@ namespace Work_namespace {
 			Shannon_decomposition_helper(_c_qub_list, _angles, G2, out);
 		}
 	}
-	/*the analising subautomats don't recognize every opp-ty as our input is strict enough
-	  except the order of the logic*/
+
+	/// <summary>
+	/// Checker of start state for automata representing grammar of simulator; 
+	/// the analising subautomatas don't recognize every opp-ty as our input is strict enough
+	/// except the order of the logic
+	/// </summary>
+	/// <param name="s"> - input string of operations</param>
+	/// <param name="out"> - stream to be put in</param>
+	/// <returns>Returns bool if it's correct input instruction or not</returns>
 	bool is_start(std::string& s, std::ofstream& out) {
 		bool answer = false;
 		std::string instruction, parameteres;
@@ -402,6 +512,14 @@ namespace Work_namespace {
 
 		return answer;
 	}
+
+	/// <summary>
+	/// Checks whether the current command is in operation list; 
+	/// if it's so the state makes the decomposition of analysed instruction
+	/// </summary>
+	/// <param name="s"> - input instructions</param>
+	/// <param name="out"> - stream to be put in</param>
+	/// <returns>Returns bool if it's correct input instruction or not</returns>
 	bool is_operation_list(std::string& s, std::ofstream& out) {
 		bool answer = false;
 		std::string instruction, parameteres, tmp, rotation_type;
@@ -412,9 +530,6 @@ namespace Work_namespace {
 		std::deque<long> deq_qubits;
 		std::vector<long> c_qub_list2;
 		Eigen::MatrixXcd matrix;
-		/*
-		std::list<double>::const_iterator double_it;*/
-
 		std::list<long>::const_iterator it;
 		long aux = 0, trgt = 0, q_1 = 0, q_2 = 0, q_3 = 0, k1 = 0, k2 = 0;
 		std::stringstream ss(s), ss1("");
@@ -438,7 +553,7 @@ namespace Work_namespace {
 			break;
 		case _R_x_conj:
 			ss.clear();
-			ss >> parameteres;
+			ss.str(parameteres);
 			std::getline(ss, tmp, ',');
 			new_angle = -std::stod(tmp);
 			std::getline(ss, tmp);
@@ -451,7 +566,7 @@ namespace Work_namespace {
 			break;
 		case _R_y_conj:
 			ss.clear();
-			ss >> parameteres;
+			ss.str(parameteres);
 			std::getline(ss, tmp, ',');
 			new_angle = -std::stod(tmp);
 			std::getline(ss, tmp);
@@ -464,7 +579,7 @@ namespace Work_namespace {
 			break;
 		case _R_z_conj:
 			ss.clear();
-			ss >> parameteres;
+			ss.str(parameteres);
 			std::getline(ss, tmp, ',');
 			new_angle = -std::stod(tmp);
 			std::getline(ss, tmp);
@@ -714,6 +829,14 @@ namespace Work_namespace {
 		c_qub_list.clear();
 		return answer;
 	}
+
+	/// <summary>
+	/// Checks whether the input is correct end_state
+	/// </summary>
+	/// <param name="s"> - input instruction</param>
+	/// <param name="out"> - output stream</param>
+	/// <param name="command_que_left_elems"> - number of elements in the instructions queue left</param>
+	/// <returns>Returns bool whether the input is correct or not</returns>
 	bool is_end(std::string& s, std::ofstream& out, long command_que_left_elems) {
 		bool answer = false;
 		std::string instruction, parameteres;
@@ -735,6 +858,12 @@ namespace Work_namespace {
 		return answer;
 	}
 
+	/// <summary>
+	/// Represents the higher abstract grammar layer;
+	/// Checks whether the input instructions matches the main quntum operator structure; 
+	/// </summary>
+	/// <param name="in"> - queue of input instructions</param>
+	/// <returns>Returns bool answer</returns>
 	bool Analyser(std::queue< std::string>& in) {
 		bool answer = false;
 		std::string input_instruction, temp;
