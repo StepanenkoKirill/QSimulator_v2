@@ -5,8 +5,10 @@
 #include <queue>
 #include <unordered_map>
 #include <math.h>
+
 #include <Eigen/Dense>
-#include <unsupported/Eigen/MatrixFunctions>
+//#include <Eigen/Eigen>
+//#include <unsupported/Eigen/MatrixFunctions>
 
 namespace Work_namespace {
 	/// <summary>
@@ -158,7 +160,48 @@ namespace Work_namespace {
 	/// <param name="rotation"> - type of rotation</param>
 	/// <param name="trg"> - target qubit</param>
 	/// <param name="out"> - stream to be put in</param>
-	void umultycontrol_rotation_decomposition_helper(std::deque<long>& c_qub, std::deque<double>& ang,
+	void umultycontrol_rotation_decomposition_helper(const std::deque<long>& c_qub, const Eigen::VectorXd& ang,
+		std::string rotation, const long trg, std::ofstream& out) {
+		long gray_0 = 0, gray_1 = 0, c_index = 0;
+		long c_index_max = 0, tmp = 0, j = 0, control_qubit = 0;
+		c_index_max = c_qub.size() - 1;
+
+		for (j = 1; j < ang.size(); ++j) {
+			gray_1 = (j ^ (j >> 1));
+			tmp = gray_0 ^ gray_1;
+			c_index = 0;
+			while (tmp > 0) {
+				if (tmp % 2 == 1) {
+					break;
+				}
+				tmp = tmp / 2;
+				c_index++;
+			}
+			out << rotation << '(' << ang[j - 1] << ',' << trg << ")\n";
+			out << "Cnot(" << c_qub[c_index_max - c_index] << ',' << trg << ")\n";
+			gray_0 = gray_1;
+		}
+		tmp = gray_1;
+		c_index = 0;
+		while (tmp > 0) {
+			if (tmp % 2 == 1) {
+				break;
+			}
+			tmp = tmp / 2;
+			c_index++;
+		}
+		out << rotation << '(' << ang[j - 1] << ',' << trg << ")\n";
+		out << "Cnot(" << c_qub[c_index_max - c_index] << ',' << trg << ")\n";
+	}
+	/// <summary>
+/// helper function for UMultycontrol_rotation for deque angles
+/// </summary>
+/// <param name="c_qub"> - list of controlling qubits</param>
+/// <param name="ang"> - list of angles for rotation</param>
+/// <param name="rotation"> - type of rotation</param>
+/// <param name="trg"> - target qubit</param>
+/// <param name="out"> - stream to be put in</param>
+	void umultycontrol_rotation_decomposition_helper(const std::deque<long>& c_qub, const std::deque<double>& ang,
 		std::string rotation, const long trg, std::ofstream& out) {
 		long gray_0 = 0, gray_1 = 0, c_index = 0;
 		long c_index_max = 0, tmp = 0, j = 0, control_qubit = 0;
@@ -197,13 +240,12 @@ namespace Work_namespace {
 	/// </summary>
 	/// <param name="M_k"> - Complex matrix</param>
 	/// <param name="size"> - Matrix size</param>
-	void make_M_k_matrix(Eigen::Ref<Eigen::MatrixXcd> M_k, long size) {
-		long gray_0 = 0, gray_1 = 0;
-		long j = 0;
-		for (j = 0; j < size; ++j) {
-			gray_1 = (j ^ (j >> 1));
-			for (long i = 0; i < size; ++i) {
-				M_k(i, j) = std::pow(-1, i ^ gray_1);
+	void make_M_k_matrix(Eigen::MatrixXcd& M_k, long size) {
+		long gray = 0;
+		for (long i = 0; i < size; ++i) {
+			for (long j = 0; j < size; ++j) {
+				gray = (j ^ (j >> 1));
+				M_k(i, j) = std::pow(-1, i & gray);
 			}
 		}
 	}
@@ -222,8 +264,8 @@ namespace Work_namespace {
 	/// <param name="R1"> - bottom  right coremer R matrix</param>
 	/// <param name="S"> - S matrix</param>
 	/// <returns></returns>
-	bool cosine_sine_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& U, Eigen::Ref<Eigen::MatrixXcd> L0, Eigen::Ref<Eigen::MatrixXcd> L1, Eigen::Ref<
-		Eigen::MatrixXcd> R0, Eigen::Ref<Eigen::MatrixXcd> R1, Eigen::Ref<Eigen::MatrixXcd> S) {
+	bool cosine_sine_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& U, Eigen::Ref<Eigen::MatrixXcd> L0, Eigen::Ref<Eigen::MatrixXcd> L1, 
+		Eigen::Ref<Eigen::MatrixXcd> R0, Eigen::Ref<Eigen::MatrixXcd> R1, Eigen::Ref<Eigen::MatrixXcd> S) {
 
 		long size = U.rows();
 		Eigen::BDCSVD<Eigen::MatrixXcd> svd(size / 2, size / 2);
@@ -234,7 +276,6 @@ namespace Work_namespace {
 		R0.noalias() = svd.matrixV().rowwise().reverse();
 
 		Eigen::MatrixXcd q2 = U.bottomLeftCorner(new_size, new_size) * R0;
-
 		long index = 0;
 		for (long j = 1; j < new_size; j++)
 		{
@@ -332,36 +373,42 @@ namespace Work_namespace {
 		Eigen::Ref<Eigen::MatrixXcd> V, Eigen::Ref<Eigen::MatrixXcd> W, Eigen::Ref<Eigen::MatrixXcd> R_z_matrix) {
 		long new_size = G.cols() >> 1;
 		Eigen::MatrixXcd G0_G1adj = G.topLeftCorner(new_size, new_size) * G.bottomRightCorner(new_size, new_size).adjoint();
-		Eigen::MatrixXcd tmp;
-		Eigen::MatrixXcd tmp_sqrt;
-
-		if (G0_G1adj == G0_G1adj.adjoint()) {
-			Eigen::SelfAdjointEigenSolver<Eigen::MatrixXcd> eigensolver(G0_G1adj);
-			if (eigensolver.info() != Eigen::Success) {
-				std::cout << "UMulticontroled_arbitrary_decomposition_helper::COMPILE ERROR: Failed to make eigen decomposition\n";
-				std::cout << "-------------------------------------------------------------------------------------------------\n";
-				return false;
-			}
-			V = eigensolver.eigenvectors();
-			tmp = eigensolver.eigenvalues().asDiagonal();
-			tmp_sqrt = tmp.sqrt();
-			R_z_matrix.topLeftCorner(new_size, new_size) = tmp_sqrt;
-			R_z_matrix.bottomRightCorner(new_size, new_size) = tmp_sqrt.adjoint();
-			W = tmp_sqrt * V.adjoint() * G.bottomRightCorner(new_size, new_size);
+		Eigen::VectorXcd tmp_sqrt(new_size);
+		Eigen::MatrixXcd D_sqrt(new_size, new_size);
+		D_sqrt.setZero(new_size, new_size);
+		//if (G0_G1adj == G0_G1adj.adjoint()) {
+		//	Eigen::SelfAdjointEigenSolver<Eigen::MatrixXcd> eigensolver(G0_G1adj);
+		//	if (eigensolver.info() != Eigen::Success) {
+		//		std::cout << "UMulticontroled_arbitrary_decomposition_helper::COMPILE ERROR: Failed to make eigen decomposition\n";
+		//		std::cout << "-------------------------------------------------------------------------------------------------\n";
+		//		return false;
+		//	}
+		//	V = eigensolver.eigenvectors();
+		//	tmp_sqrt = eigensolver.eigenvalues().array().sqrt(); //!!!
+		//}
+		Eigen::ComplexEigenSolver<Eigen::MatrixXcd> cmplx_eigensolver(G0_G1adj);
+		if (cmplx_eigensolver.info() != Eigen::Success) {
+			std::cout << "UMulticontroled_arbitrary_decomposition_helper::COMPILE ERROR: Failed to make eigen decomposition\n";
+			std::cout << "-------------------------------------------------------------------------------------------------\n";
+			return false;
 		}
-		else {
-			Eigen::ComplexEigenSolver<Eigen::MatrixXcd> cmplx_eigensolver(G0_G1adj);
-			if (cmplx_eigensolver.info() != Eigen::Success) {
-				std::cout << "UMulticontroled_arbitrary_decomposition_helper::COMPILE ERROR: Failed to make eigen decomposition\n";
-				std::cout << "-------------------------------------------------------------------------------------------------\n";
-				return false;
-			}
-			V = cmplx_eigensolver.eigenvectors();
-			tmp = cmplx_eigensolver.eigenvalues().asDiagonal();
-			tmp_sqrt = tmp.sqrt();
-			R_z_matrix.topLeftCorner(new_size, new_size) = tmp_sqrt;
-			R_z_matrix.bottomRightCorner(new_size, new_size) = tmp_sqrt.adjoint();
-			W = tmp_sqrt * V.adjoint() * G.bottomRightCorner(new_size, new_size);
+		V = cmplx_eigensolver.eigenvectors();
+		tmp_sqrt = cmplx_eigensolver.eigenvalues().array().sqrt();
+		for (long j = 0; j < new_size; ++j) {
+			D_sqrt(j, j) = tmp_sqrt(j);
+		}
+		R_z_matrix.topLeftCorner(new_size, new_size) = D_sqrt;
+		R_z_matrix.bottomRightCorner(new_size, new_size) = D_sqrt.adjoint();
+		W = D_sqrt * V.adjoint() * G.bottomRightCorner(new_size, new_size);
+
+		Eigen::MatrixXcd checker(G.cols(), G.cols());
+		checker.setZero(G.cols(), G.cols());
+		checker.topLeftCorner(new_size, new_size) = V * R_z_matrix.topLeftCorner(new_size, new_size) * W;
+		checker.bottomRightCorner(new_size, new_size) = V * R_z_matrix.bottomRightCorner(new_size, new_size) * W;
+		if (!checker.isApprox(G, 10e-2))
+		{
+			std::cout << "COMPILE ERROR::Wrong demultiplexing!\n";
+			return false;
 		}
 		return true;
 	}
@@ -374,10 +421,14 @@ namespace Work_namespace {
 	/// <returns></returns>
 	Eigen::VectorXd make_real_angles_R_z(const Eigen::Ref<const Eigen::MatrixXcd>& D, const Eigen::Ref<const Eigen::MatrixXcd>& M_k) {
 		std::complex<double> i(0, 1);
-		Eigen::VectorXcd alpha = D.asDiagonal();
-		alpha.array().log();
-		alpha.array()* i* (-2);
+		std::cout << D << std::endl << "mk " << M_k << std::endl;
+		Eigen::VectorXcd alpha = D.diagonal();
+		std::cout << alpha << std::endl;
+		alpha = alpha.array().log();
+		alpha = alpha.array()* i* (-2);
+		std::cout << std::endl << "alphanew: " << alpha << std::endl;
 		Eigen::VectorXcd theta = M_k.colPivHouseholderQr().solve(alpha);
+		std::cout << std::endl << "theta: " << theta << std::endl;
 		return theta.array().real();
 	}
 
@@ -388,9 +439,9 @@ namespace Work_namespace {
 	/// <param name="M_k"> - matrix to select correct signes before the angles</param>
 	/// <returns></returns>
 	Eigen::VectorXd make_real_angles_R_y(const Eigen::Ref<const Eigen::MatrixXcd>& S, const Eigen::Ref<const Eigen::MatrixXcd>& M_k) {
-		Eigen::VectorXcd alpha = S.asDiagonal();
-		alpha.array().asin();
-		alpha.array()*2;
+		Eigen::VectorXcd alpha = S.diagonal();
+		alpha = alpha.array().asin();
+		alpha = alpha.array()*2;
 		Eigen::VectorXcd theta = M_k.colPivHouseholderQr().solve(alpha);
 		return theta.array().real();
 	}
@@ -402,6 +453,7 @@ namespace Work_namespace {
 	/// <param name="out"> - stream to be put in</param>
 	void one_qubit_arbitrary_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& matrix, 
 		const long qubit_num, std::ofstream& out) {
+		std::cout << std::endl << matrix << std::endl;
 		std::complex<double>  det = matrix.determinant();
 		double delta = atan2(det.imag(), det.real()) / matrix.rows();
 		std::complex<double> A = exp(std::complex<double>(0, -1) * delta) * matrix(0, 0);
@@ -432,56 +484,53 @@ namespace Work_namespace {
 	/// <param name="_angles"> - list for storing angles of rotation</param>
 	/// <param name="U"> - initial matrix to be decomposed</param>
 	/// <param name="out"> - stream to be put in</param>
-	void Shannon_decomposition_helper(std::deque<long>& _c_qub_list, std::deque<double>& _angles,
+	void Shannon_decomposition_helper(std::deque<long>& _c_qub_list, std::deque<double>& _angles_z, std::deque<double>& _angles_y,
 		Eigen::MatrixXcd& U, std::ofstream& out) {
 		if (U.cols() == 2) {
 			one_qubit_arbitrary_decomposition_helper(U, _c_qub_list.front(), out);
 		}
 		else {
-			Eigen::MatrixXcd G1, G2, L, R, D, M_k, S;
-			long target, new_size, q1;
-			target = 0;
+			long new_size, q1;
+			q1 = _c_qub_list.front();
 			new_size = U.cols() >> 1;
-			G1.resize(new_size, new_size);
-			G2.resize(new_size, new_size);
-			S.resize(new_size, new_size);
-			L.resize(U.cols(), U.cols());
-			R.resize(U.cols(), U.cols());
-			D.resize(U.cols(), U.cols());
-			M_k.resize(new_size, new_size);
+			Eigen::MatrixXcd G1(new_size, new_size), G2(new_size, new_size),
+				L(U.cols(), U.cols()), R(U.cols(), U.cols()), D(U.cols(), U.cols()),
+				M_k(new_size, new_size), S(new_size, new_size), G3(new_size, new_size),
+				G4(new_size, new_size), D2(U.cols(), U.cols());
+			D2.setZero(U.cols(), U.cols());
+			G3.setZero(new_size, new_size);
+			G4.setZero(new_size, new_size);
+			L.setZero(U.cols(), U.cols());
+			R.setZero(U.cols(), U.cols());
+			D.setZero(U.cols(), U.cols());
+			S.setZero(new_size, new_size);
+			G1.setZero(new_size, new_size);
+			G2.setZero(new_size, new_size);
+			M_k.setZero(new_size, new_size);
 
 			/*count G1 G2*/
-			cosine_sine_decomposition_helper(U, L.topLeftCorner(new_size, new_size), L.bottomRightCorner(new_size, new_size),
-				R.topLeftCorner(new_size, new_size), R.bottomRightCorner(new_size, new_size), S);
+			cosine_sine_decomposition_helper(U, L.topLeftCorner(new_size,new_size), L.bottomRightCorner(new_size,new_size),
+											 R.topLeftCorner(new_size, new_size), R.bottomRightCorner(new_size, new_size), S);
 			UMulticontroled_arbitrary_decomposition_helper(L, G2, G1, D);
-			q1 = _c_qub_list.front();
-			_c_qub_list.pop_front();
-			Shannon_decomposition_helper(_c_qub_list, _angles, G1, out);
-			make_M_k_matrix(M_k, 1 << _c_qub_list.size());
-			Eigen::VectorXd theta = make_real_angles_R_z(D, M_k);
-			_angles.clear();
-			for (long i = 0; i < theta.size(); ++i) {
-				_angles.push_back(theta(i));
-			}
-			umultycontrol_rotation_decomposition_helper(_c_qub_list, _angles, "R_z", q1, out);
-			Shannon_decomposition_helper(_c_qub_list, _angles, G2, out);
-			theta = make_real_angles_R_y(S, M_k);
-			_angles.clear();
-			for (long i = 0; i < theta.size(); ++i) {
-				_angles.push_back(theta(i));
-			}
-			umultycontrol_rotation_decomposition_helper(_c_qub_list, _angles, "R_y", target,  out);
+			UMulticontroled_arbitrary_decomposition_helper(R, G4, G3, D2);
+			make_M_k_matrix(M_k, new_size);
+			Eigen::VectorXd theta_z_l = make_real_angles_R_z(D.topLeftCorner(new_size, new_size), M_k),
+							theta_z_r = make_real_angles_R_z(D2.topLeftCorner(new_size, new_size), M_k),
+							theta_y = make_real_angles_R_y(S, M_k);
 
-			/*recount G1 G2*/
-			UMulticontroled_arbitrary_decomposition_helper(R, G2, G1, D);
-			Shannon_decomposition_helper(_c_qub_list, _angles, G1, out);
-			theta = make_real_angles_R_z(D, M_k);
-			_angles.clear();
-			for (long i = 0; i < theta.size(); ++i) {
-				_angles.push_back(theta(i));
-			}
-			umultycontrol_rotation_decomposition_helper(_c_qub_list, _angles, "R_z", target, out);
-			Shannon_decomposition_helper(_c_qub_list, _angles, G2, out);
+			_c_qub_list.pop_front();
+			std::cout << U << std::endl;
+			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G1, out);
+//			_c_qub_list.push_front(q1);
+			umultycontrol_rotation_decomposition_helper(_c_qub_list, theta_z_l, "R_z", q1, out);
+			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G2, out);
+//			_c_qub_list.push_front(q1);
+			umultycontrol_rotation_decomposition_helper(_c_qub_list, theta_y, "R_y", q1,  out);
+			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G3, out);
+//			_c_qub_list.push_front(q1);
+			umultycontrol_rotation_decomposition_helper(_c_qub_list, theta_z_r, "R_z", q1, out);
+			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G4, out);
+//			_c_qub_list.push_front(q1);
 		}
 	}
 
@@ -523,13 +572,17 @@ namespace Work_namespace {
 	bool is_operation_list(std::string& s, std::ofstream& out) {
 		bool answer = false;
 		std::string instruction, parameteres, tmp, rotation_type;
+		std::string tempor;
 		double angle = 0., new_angle = 0.;
 		std::list<long> c_qub_list;
 		std::vector<double> angles;
 		std::deque<double> deq_angles;
+		std::deque<double> deq_angles_z;
+		std::deque<double> deq_angles_y;
 		std::deque<long> deq_qubits;
 		std::vector<long> c_qub_list2;
-		Eigen::MatrixXcd matrix;
+		Eigen::MatrixXcd matrix(10,10);
+		long rows = 0, cols = 0;
 		std::list<long>::const_iterator it;
 		long aux = 0, trgt = 0, q_1 = 0, q_2 = 0, q_3 = 0, k1 = 0, k2 = 0;
 		std::stringstream ss(s), ss1("");
@@ -798,16 +851,26 @@ namespace Work_namespace {
 			ss.str(parameteres + ';'); 
 			std::getline(ss, tmp, ';');// read matr size
 			long space_size;
+			long size;
 			space_size = std::stol(tmp);
 			matrix.resize(space_size, space_size);
 			ss1.clear();
+			
 			while (std::getline(ss, instruction, ';')) {
-				ss1.str(instruction + ',');
-				while (std::getline(ss1, tmp, ',')) {
-					matrix << read_complex(tmp);
+				cols = 0;
+				ss1.str(instruction + ' ');
+				while (ss1 >> tempor) {
+					matrix(rows, cols) = read_complex(tempor);
+					cols++;
 				}
+				ss1.clear();
+				rows++;
 			}
-			Shannon_decomposition_helper(deq_qubits, deq_angles, matrix, out);
+			size = log2(space_size);
+			for (long i = 1; i <= size; ++i) {
+				deq_qubits.push_back(i);
+			}
+			Shannon_decomposition_helper(deq_qubits, deq_angles_z, deq_angles_y, matrix, out);
 			answer = true;
 			break;
 		case _Measure:

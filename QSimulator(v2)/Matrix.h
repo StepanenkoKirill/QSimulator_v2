@@ -102,9 +102,9 @@ namespace Work_namespace {
     }
 }
 
-namespace QLab {
-
-    using ::Work_namespace::Matrix;
-
-}
+//namespace QLab {
+//
+//    using ::Work_namespace::Matrix;
+//
+//}
 

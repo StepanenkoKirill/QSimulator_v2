@@ -2,7 +2,7 @@
 #include "QProgram.h"
 #include "macro.h"
 #include <math.h>
-#include <Eigen/Dense>
+//#include <Eigen/Dense>
 
 namespace Work_namespace {
 
@@ -20,12 +20,8 @@ namespace Work_namespace {
 			}
 			QProgram prog;
 			//making R transformation
-			std::vector<std::vector<std::complex<double>>> R(space_size, std::vector < std::complex<double>>(space_size, 0));
-			R[0][0] = 1;
-			for (long i = 1; i < space_size; ++i) {
-				R[i][i] = -1;
-			}
-			Eigen::MatrixXcd R_transform(R);
+			Eigen::MatrixXcd R_transform = Eigen::MatrixXcd::Identity(space_size, space_size)*(-1);
+			R_transform(0, 0) = 1;
 			long counter = 0;
 			do {
 				if (final_iterations_col > 10 * iterations) { // in case of cycling when there's no marked amplitudes
@@ -41,12 +37,12 @@ namespace Work_namespace {
 					//Oracle (marks needed state)
 					prog.Arbit_transform(Oracle);
 					//Diffuser
-					for (long i = 1; i <= size; ++i) {
-						prog.H(i);
+					for (long j = 1; j <= size; ++j) {
+						prog.H(j);
 					}
 					prog.Arbit_transform(R_transform);
-					for (long i = 1; i <= size; ++i) {
-						prog.H(i);
+					for (long k = 1; k <= size; ++k) {
+						prog.H(k);
 					}
 				}
 				counter++; final_iterations_col = counter * iterations;
