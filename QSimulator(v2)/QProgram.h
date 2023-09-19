@@ -5,7 +5,7 @@
 #include "Qsyntax_analyser.h"
 #include "QClassic_simulator_handler.h"
 #include <string>
-#include <Eigen/Dense>
+//#include <Eigen/Dense>
 #include <fstream>
 
 
@@ -569,7 +569,7 @@ namespace Work_namespace {
 					parameters << matr(i, j) << ")\n";
 				}
 				else {
-					parameters << matr(i, j) << ',';
+					parameters << matr(i, j) << ' ';
 				}
 			}
 		}
