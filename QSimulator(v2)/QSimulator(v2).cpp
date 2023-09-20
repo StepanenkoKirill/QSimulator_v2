@@ -7,9 +7,6 @@
 #include <list>
 //#include <Eigen/Dense>
 
-namespace QLab {
-	QProgram* q = new QProgram;
-}
 
 void f(std::vector<long>& _c_qub_list, long _aux, long _trgt, std::ostream& out) {
 	if (_c_qub_list.size() == 2) {
@@ -53,17 +50,14 @@ int main()
 		//program->Measure(5);
 		//program->Execute();
 		//std::cout << "Answer is:" << program->Get_answer()[0];
-		long size = 2;
-		long space = 1 << 2;
-		Eigen::MatrixXcd oracle(Eigen::MatrixXcd::Identity(space, space) * (-1));
-		oracle(1, 1) = 1;
+		long size = 3;
+		long space = 1 << size;
+		Eigen::MatrixXcd oracle(Eigen::MatrixXcd::Identity(space, space));
+		oracle(1, 1) = -1;
 		long final_iterations = 3;
-		program->Init_reg(2);
-		program->Arbit_transform(oracle);
-		program->Measure(2);
-		program->Measure(1);
-		program->Execute();
-		std::cout << "Answer is:" << program->Get_answer()[0] << program->Get_answer()[1];
+		std::cout << oracle;
+		long answer = QLab::Grover_Search(oracle, size, final_iterations, 1);
+		std::cout << "Answer is: " << answer;
 	}
 	catch (std::exception ex) {
 		std::cout << ex.what();

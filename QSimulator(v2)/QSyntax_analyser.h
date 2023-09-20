@@ -151,7 +151,17 @@ namespace Work_namespace {
 			_c_qub_list.erase(it);
 		}
 	}
-
+	long get_bit_index(long number, long max_index) {
+		long index = 0;
+		while (number >= 0) {
+			if (number % 2 == 1) {
+				break;
+			}
+			number = number / 2;
+			index+=1;
+		}
+		return (max_index - index);
+	}
 	/// <summary>
 	/// helper function for UMultycontrol_rotation
 	/// </summary>
@@ -161,6 +171,62 @@ namespace Work_namespace {
 	/// <param name="trg"> - target qubit</param>
 	/// <param name="out"> - stream to be put in</param>
 	void umultycontrol_rotation_decomposition_helper(const std::deque<long>& c_qub, const Eigen::VectorXd& ang,
+		std::string rotation, const long trg, std::ofstream& out) {
+		long gray_prev = 0, gray_cur = 0, control_index = 0;
+		long c_index_max = 0, tmp = 0, j = 0, control_qubit = 0;
+		c_index_max = log2(ang.rows()) - 1;
+
+		for (long i = 1; i < ang.rows(); ++i) {
+			gray_cur = i ^ (i >> 1);
+			control_index = get_bit_index(gray_cur ^ gray_prev, c_index_max);
+			if (control_index < 0 || control_index >= ang.rows()) {
+				throw std::exception("COMPILE ERROR: Wrong size of deque with qubits to control");
+			}
+			out << rotation << '(' << ang[i - 1] << ',' << trg << ")\n";
+			out << "Cnot(" << c_qub[control_index] << ',' << trg << ")\n";
+			gray_prev = gray_cur;
+		}
+		control_index = get_bit_index(gray_cur, c_index_max);
+		out << rotation << '(' << ang[c_index_max] << ',' << trg << ")\n";
+		out << "Cnot(" << c_qub[control_index] << ',' << trg << ")\n";
+	}
+	/// <summary>
+	/// helper function for UMultycontrol_rotation
+	/// </summary>
+	/// <param name="c_qub"> - list of controlling qubits</param>
+	/// <param name="ang"> - list of angles for rotation</param>
+	/// <param name="rotation"> - type of rotation</param>
+	/// <param name="trg"> - target qubit</param>
+	/// <param name="out"> - stream to be put in</param>
+	void umultycontrol_rotation_decomposition_helper(const std::deque<long>& c_qub, const std::deque<double>& ang,
+		std::string rotation, const long trg, std::ofstream& out) {
+		long gray_prev = 0, gray_cur = 0, control_index = 0;
+		long c_index_max = 0, tmp = 0, j = 0, control_qubit = 0;
+		c_index_max = log2(ang.size()) - 1;
+
+		for (long i = 1; i < ang.size(); ++i) {
+			gray_cur = i ^ (i >> 1);
+			control_index = get_bit_index(gray_cur ^ gray_prev, c_index_max);
+			if (control_index < 0 || control_index >= ang.size()) {
+				throw std::exception("COMPILE ERROR: Wrong size of deque with qubits to control");
+			}
+			out << rotation << '(' << ang[i - 1] << ',' << trg << ")\n";
+			out << "Cnot(" << c_qub[control_index] << ',' << trg << ")\n";
+			gray_prev = gray_cur;
+		}
+		control_index = get_bit_index(gray_cur, c_index_max);
+		out << rotation << '(' << ang[c_index_max] << ',' << trg << ")\n";
+		out << "Cnot(" << c_qub[control_index] << ',' << trg << ")\n";
+	}
+	/// <summary>
+	/// helper function for UMultycontrol_rotation
+	/// </summary>
+	/// <param name="c_qub"> - list of controlling qubits</param>
+	/// <param name="ang"> - list of angles for rotation</param>
+	/// <param name="rotation"> - type of rotation</param>
+	/// <param name="trg"> - target qubit</param>
+	/// <param name="out"> - stream to be put in</param>
+	void umultycontrol_rotation_decomposition_helper_wrong(const std::deque<long>& c_qub, const Eigen::VectorXd& ang,
 		std::string rotation, const long trg, std::ofstream& out) {
 		long gray_0 = 0, gray_1 = 0, c_index = 0;
 		long c_index_max = 0, tmp = 0, j = 0, control_qubit = 0;
@@ -201,7 +267,7 @@ namespace Work_namespace {
 /// <param name="rotation"> - type of rotation</param>
 /// <param name="trg"> - target qubit</param>
 /// <param name="out"> - stream to be put in</param>
-	void umultycontrol_rotation_decomposition_helper(const std::deque<long>& c_qub, const std::deque<double>& ang,
+	void umultycontrol_rotation_decomposition_helper_wrong(const std::deque<long>& c_qub, const std::deque<double>& ang,
 		std::string rotation, const long trg, std::ofstream& out) {
 		long gray_0 = 0, gray_1 = 0, c_index = 0;
 		long c_index_max = 0, tmp = 0, j = 0, control_qubit = 0;
@@ -492,6 +558,7 @@ namespace Work_namespace {
 		else {
 			long new_size, q1;
 			q1 = _c_qub_list.front();
+			_c_qub_list.pop_front();
 			new_size = U.cols() >> 1;
 			Eigen::MatrixXcd G1(new_size, new_size), G2(new_size, new_size),
 				L(U.cols(), U.cols()), R(U.cols(), U.cols()), D(U.cols(), U.cols()),
@@ -518,19 +585,19 @@ namespace Work_namespace {
 							theta_z_r = make_real_angles_R_z(D2.topLeftCorner(new_size, new_size), M_k),
 							theta_y = make_real_angles_R_y(S, M_k);
 
-			_c_qub_list.pop_front();
+
 			std::cout << U << std::endl;
 			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G1, out);
-//			_c_qub_list.push_front(q1);
+			_c_qub_list.push_front(q1);
 			umultycontrol_rotation_decomposition_helper(_c_qub_list, theta_z_l, "R_z", q1, out);
 			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G2, out);
-//			_c_qub_list.push_front(q1);
+			_c_qub_list.push_front(q1);
 			umultycontrol_rotation_decomposition_helper(_c_qub_list, theta_y, "R_y", q1,  out);
 			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G3, out);
-//			_c_qub_list.push_front(q1);
+			_c_qub_list.push_front(q1);
 			umultycontrol_rotation_decomposition_helper(_c_qub_list, theta_z_r, "R_z", q1, out);
 			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G4, out);
-//			_c_qub_list.push_front(q1);
+			_c_qub_list.push_front(q1);
 		}
 	}
 

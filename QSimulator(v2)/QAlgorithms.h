@@ -49,6 +49,12 @@ namespace Work_namespace {
 				prog.Measure_all();
 				prog.Execute();
 				result = prog.Get_answer();
+				// Gorner is backwords oriented because 1st element in answer is the last qubit
+				//long start_index = result.size() - 1;
+				//index = result[start_index];
+				//for (long i = start_index - 1; i >= 0; --i) {
+				//	index = index * 2 + result[i];
+				//}
 				index = result[0];
 				for (int i = 1; i < result.size(); ++i) {
 					index = index * 2 + result[i];

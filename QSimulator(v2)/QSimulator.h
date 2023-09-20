@@ -95,6 +95,8 @@ namespace Work_namespace {
 	}
 	/// <summary>
 	/// Measures the register at once
+	/// Comment: remember that this method returns the exact order of qubits despite the fact that 
+	/// it measures from the last qubit
 	/// </summary>
 	/// <returns>Returns bool vector - the stationary state from superposition</returns>
 	std::vector<bool> QSimulator::Measure_all() {
