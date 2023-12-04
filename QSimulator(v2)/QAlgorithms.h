@@ -62,6 +62,35 @@ namespace Work_namespace {
 			} while (Oracle(index, index) != -1.);
 			return index;
 		}
+
+		template<class type, class type2=long, class type3 = long, class type4=long>
+		type Durr_Hoyer_based_search(type(*fun)(type2, type3, type4), std::vector<long> &T) {
+			long space_size = T.size();
+			long answer = -1;
+			srand(time(0));
+			double lg_2 = log2(space_size);
+			long qubits = ceil(lg_2);
+			long final_iterations_col = 0;
+			long summary = 0;
+			long roots_col = 0;
+			long current_index = 0;
+			long rand_index = std::rand() % space_size;
+			long iterations_border = ceil(22.5 * sqrt(space_size) + lg_2 * lg_2);
+			Eigen::MatrixXcd Oracle = Eigen::MatrixXcd::Zero(space_size, space_size);
+			do {
+				answer = rand_index;
+				for (long i = 0; i < space_size; ++i) {
+					Oracle(i, i) = fun(i, rand_index, T);
+					roots_col++;
+				}
+				rand_index = Grover_Search(Oracle, qubits, final_iterations_col, roots_col);
+				summary += final_iterations_col;
+				roots_col = 0;
+				final_iterations_col = 0;
+			} while (summary <= iterations_border && rand_index != -1);
+			return answer;
+		}
+
 	}
 	
 }

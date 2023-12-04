@@ -160,7 +160,7 @@ namespace Work_namespace {
 				answer.push_back(_sim.Measure(read_integer_parameter(tmp)));
 				break;
 			case _Measure_all:
-				_sim.Debug_reg_content(std::cout);
+//				_sim.Debug_reg_content(std::cout);
 				answer = _sim.Measure_all();
 				break;
 			case _Phase:
@@ -182,7 +182,7 @@ namespace Work_namespace {
 //				_sim.Debug_reg_content(std::cout);
 				break;
 			default:
-				std::cout << "RUNTIME ERROR: Can't find such operator \n";
+				throw std::exception("RUNTIME ERROR: Can't find such operator \n");
 			}
 		}
 		return answer;

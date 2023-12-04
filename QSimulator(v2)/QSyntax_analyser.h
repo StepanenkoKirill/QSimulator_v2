@@ -414,7 +414,7 @@ namespace Work_namespace {
 				R1.row(i).noalias() = tmp_c.row(i) / c(i, i);
 			}
 		}
-		Eigen::MatrixXcd tmp(size, size);
+		/*Eigen::MatrixXcd tmp(size, size);
 		tmp.topLeftCorner(new_size, new_size) = L0 * c * R0;
 		tmp.bottomLeftCorner(new_size, new_size) = -L1 * S * R0;
 		tmp.topRightCorner(new_size, new_size) = L0 * S * R1;
@@ -423,7 +423,7 @@ namespace Work_namespace {
 		{
 			std::cout << "COMPILE ERROR::Wrong CSD!\n";
 			return false;
-		}
+		}*/
 		return true;
 	}
 	
@@ -467,7 +467,7 @@ namespace Work_namespace {
 		R_z_matrix.bottomRightCorner(new_size, new_size) = D_sqrt.adjoint();
 		W = D_sqrt * V.adjoint() * G.bottomRightCorner(new_size, new_size);
 
-		Eigen::MatrixXcd checker(G.cols(), G.cols());
+		/*Eigen::MatrixXcd checker(G.cols(), G.cols());
 		checker.setZero(G.cols(), G.cols());
 		checker.topLeftCorner(new_size, new_size) = V * R_z_matrix.topLeftCorner(new_size, new_size) * W;
 		checker.bottomRightCorner(new_size, new_size) = V * R_z_matrix.bottomRightCorner(new_size, new_size) * W;
@@ -475,7 +475,7 @@ namespace Work_namespace {
 		{
 			std::cout << "COMPILE ERROR::Wrong demultiplexing!\n";
 			return false;
-		}
+		}*/
 		return true;
 	}
 
@@ -487,14 +487,10 @@ namespace Work_namespace {
 	/// <returns></returns>
 	Eigen::VectorXd make_real_angles_R_z(const Eigen::Ref<const Eigen::MatrixXcd>& D, const Eigen::Ref<const Eigen::MatrixXcd>& M_k) {
 		std::complex<double> i(0, 1);
-		std::cout << D << std::endl << "mk " << M_k << std::endl;
 		Eigen::VectorXcd alpha = D.diagonal();
-		std::cout << alpha << std::endl;
 		alpha = alpha.array().log();
 		alpha = alpha.array()* i* (-2);
-		std::cout << std::endl << "alphanew: " << alpha << std::endl;
 		Eigen::VectorXcd theta = M_k.colPivHouseholderQr().solve(alpha);
-		std::cout << std::endl << "theta: " << theta << std::endl;
 		return theta.array().real();
 	}
 
@@ -519,7 +515,6 @@ namespace Work_namespace {
 	/// <param name="out"> - stream to be put in</param>
 	void one_qubit_arbitrary_decomposition_helper(const Eigen::Ref<const Eigen::MatrixXcd>& matrix, 
 		const long qubit_num, std::ofstream& out) {
-		std::cout << std::endl << matrix << std::endl;
 		std::complex<double>  det = matrix.determinant();
 		double delta = atan2(det.imag(), det.real()) / matrix.rows();
 		std::complex<double> A = exp(std::complex<double>(0, -1) * delta) * matrix(0, 0);
@@ -586,7 +581,6 @@ namespace Work_namespace {
 							theta_y = make_real_angles_R_y(S, M_k);
 
 
-			std::cout << U << std::endl;
 			Shannon_decomposition_helper(_c_qub_list, _angles_z, _angles_y, G1, out);
 			_c_qub_list.push_front(q1);
 			umultycontrol_rotation_decomposition_helper(_c_qub_list, theta_z_l, "R_z", q1, out);

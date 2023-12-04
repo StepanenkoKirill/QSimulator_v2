@@ -125,11 +125,11 @@ namespace Work_namespace {
 			/// </summary>
 			/// <param name="new_size"> - new size of register</param>
 			void Project(const long new_size) {
-				if (new_size % 2 != 0 && new_size != 1) {
-					std::cout << "Project::Runtime ERROR: Projection is not qubit-oriented\n\n";
-					std::cout << "--------------------------------------------------------\n\n";
-					throw std::runtime_error("False size of projected space size\n\n");
-				}
+				//if (new_size % 2 != 0 && new_size != 1) {
+				//	std::cout << "Project::Runtime ERROR: Projection is not qubit-oriented\n\n";
+				//	std::cout << "--------------------------------------------------------\n\n";
+				//	throw std::runtime_error("False size of projected space size\n\n");
+				//}
 				long space_size = 1 << new_size;
 				this->size = new_size;
 				amplitudes->resize(space_size);
