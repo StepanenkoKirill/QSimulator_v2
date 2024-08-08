@@ -24,7 +24,7 @@ namespace Work_namespace {
 			R_transform(0, 0) = 1;
 			long counter = 0;
 			do {
-				if (final_iterations_col > 10 * iterations) { // in case of cycling when there's no marked amplitudes
+				if (final_iterations_col > space_size * iterations) { // in case of cycling when there's no marked amplitudes
 					index = -1;
 					break;
 				}
@@ -89,6 +89,29 @@ namespace Work_namespace {
 				final_iterations_col = 0;
 			} while (summary <= iterations_border && rand_index != -1);
 			return answer;
+		}
+
+		/// <summary>
+		/// The procedure returns the QProgram object to be used afterwords.
+		/// </summary>
+		/// <param name="hash_preimage">Should be assumed correctly to satiisfy quantum 1 qubit hash-function properties, however
+		/// the value can be various, but the properties of the function are not guaranteed.</param>
+		/// <returns>QProgram object</returns>
+		QProgram One_qubit_hash_generator(long hash_preimage) {
+			QProgram prog;
+			prog.Init_reg(1); // initialize in |0>
+			long number_of_preimage_bits = 0, number_of_roots_of_one_in_circle = 0;
+			number_of_preimage_bits = ceil(log2(hash_preimage));
+			number_of_roots_of_one_in_circle = (1 << number_of_preimage_bits);
+			double angle = 2 * M_PI * hash_preimage / number_of_roots_of_one_in_circle; 
+			prog.R_y(angle, 1);
+			return prog;
+		}
+		QProgram Cyclic_group_hash_generator(const Eigen::Ref<const Eigen::MatrixXcd>& Matr, long size) {
+			QProgram prog;
+			prog.Init_reg(size); // initialize in |0..0>
+			prog.Arbit_transform(Matr);
+			return prog;
 		}
 
 	}

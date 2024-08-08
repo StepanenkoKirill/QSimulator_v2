@@ -315,7 +315,7 @@ namespace Work_namespace {
 			out << "|reg> = ";
 			for (long i = 0; i < space_size; ++i) {
 				if (i == space_size - 1) {
-					out << _reg[i] << "|" << i << ">\n";
+					out << _reg[i] << "|" << i << ">\n\n";
 				}
 				else {
 					out << _reg[i] << "|" << i << "> + ";

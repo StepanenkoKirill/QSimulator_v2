@@ -5,6 +5,7 @@
 #include "QAlgorithms.h"
 #include "QSyntax_analyser.h"
 #include <list>
+#include <complex>
 //#include <Eigen/Dense>
 
 
@@ -54,29 +55,93 @@ int main()
 		//program->Execute();
 		//std::cout << "Answer is:" << program->Get_answer()[0];
 		
-		long size = 4;
-		long space = 1 << size;
-		Eigen::MatrixXcd oracle(Eigen::MatrixXcd::Identity(space, space));
-		oracle(9, 9) = -1;
-		long final_iterations = 3;
-		long answer = QLab::Grover_Search(oracle, size, final_iterations, 1);
-		std::cout << "Answer is: " << answer;
+		//std::cout << "Grover search of the function argument." << std::endl;
+		//long size = 4;
+		//long space = 1 << size;
+		//std::cout << "The size of the search task is: " << space << std::endl;
+		//Eigen::MatrixXcd oracle(Eigen::MatrixXcd::Identity(space, space));
+		//oracle(9, 9) = -1;
+		//std::cout << "The marking oracle is:" << std::endl << oracle << std::endl;
+		//long final_iterations = 1;
+		//std::cout << std::endl;
+		//std::cout << "Calculation start:" << std::endl;
+		//std::cout << "--------------------------------------------------------------" << std::endl;
+		//long answer = QLab::Grover_Search(oracle, size, final_iterations, 1);
+		//std::cout << "Calculation end." << std::endl;
+		//std::cout << "--------------------------------------------------------------" << std::endl;
+		//std::cout << std::endl;
+		//std::cout << "Answer is: " << answer;
 
+		//std::cout << "Durr-Hoyer search of the minimum element in the list." << std::endl;
 		//std::vector<long> v{ 1, 44, 15, 2, -1, -44, 125, 112, 33, -2, 100, 72, -32, 22, 10, 722,
 		//					 13, 4, 5, 7, -29, 444, 525, -1112, 303, 11, 0, 78, -302, 232, 911, 92 };
-		//double time1 = std::clock();
-		//std:: cout << QLab::Durr_Hoyer_based_search<long, long, long, std::vector<long>&>(Durr_Hoyer_help_for_min_search, v);
-		//std::cout << std::endl << "time: " << std::clock() - time1;
-
+		//std::cout << "The list is: " << std::endl;
+		//for (int i = 0; i < v.size(); ++i) {
+		//	std::cout << v[i] << " ";
+		//}
+		//std::cout << std::endl;
+		////double time1 = std::clock();
+		////std:: cout << QLab::Durr_Hoyer_based_search<long, long, long, std::vector<long>&>(Durr_Hoyer_help_for_min_search, v);
+		////std::cout << std::endl << "time: " << std::clock() - time1;
+		//std::cout << std::endl;
+		//std::cout << "Calculation start:" << std::endl;
+		//std::cout << "--------------------------------------------------------------" << std::endl;
 		//std::vector<int> indexes(32, 0);
 		//long an = 0;
-		//for (int i = 0; i < 2; ++i) {
+		//for (int i = 0; i < 5; ++i) {
 		//	an = QLab::Durr_Hoyer_based_search<long, long, long, std::vector<long>&>(Durr_Hoyer_help_for_min_search, v);
 		//	indexes[an]++;
 		//}
+		//std::cout << std::endl;
+		//std::cout << "Calculation end." << std::endl;
+		//std::cout << "--------------------------------------------------------------" << std::endl << std::endl;
+		//std::cout << "The answer is: [ ";
 		//for (int i = 0; i < 32; ++i) {
 		//	std::cout << indexes[i] << " ";
 		//}
+		//std::cout << "]";
+
+		//std::cout << "One qubit hashing" << std::endl;
+		//long preimage = 10;
+		//std::cout << "The preimage is: " << preimage << std::endl;
+		//QLab::QProgram qprog = QLab::One_qubit_hash_generator(preimage);
+		//qprog.Measure_all();
+		//std::cout << "Calculation start:" << std::endl;
+		//std::cout << "--------------------------------------------------------------" << std::endl;
+		//qprog.Execute();
+		//long answer = qprog.Get_answer()[0];
+		//std::cout << "Calculation end." << std::endl;
+		//std::cout << "--------------------------------------------------------------" << std::endl;
+		//std::cout << std::endl;
+		//std::cout << "Answer is: " << answer;
+
+		std::cout << "Cyclic group hashing" << std::endl;
+		long preimage = 10;
+		long size = 3;
+		long space_size = (1 << size);
+		std::cout << "The preimage is: " << preimage << std::endl;
+		Eigen::MatrixXcd Unit(space_size, space_size);
+		std::complex<double> w = std::polar(1.0, 0.);
+		double angle = 2 * M_PI / space_size;
+		double ro = 1.0 / 4;
+		for (long i = 0; i < 8; ++i) {
+			for (long j = 0; j < 8; ++j) {
+				if (i != 0) {
+					Unit(i, j) = std::polar(ro, angle * ((10 * j)%space_size));
+				}
+				else {
+					Unit(i, j) = std::polar(ro, 0.);
+				}
+			}
+		}
+		QLab::QProgram qprog = QLab::Cyclic_group_hash_generator(U, size);
+		qprog.Measure_all();
+		std::cout << "Calculation start:" << std::endl;
+		std::cout << "--------------------------------------------------------------" << std::endl;
+		qprog.Execute();
+		std::cout << "Calculation end." << std::endl;
+		std::cout << "--------------------------------------------------------------" << std::endl;
+
 	}
 	catch (std::exception ex) {
 		std::cout << ex.what();

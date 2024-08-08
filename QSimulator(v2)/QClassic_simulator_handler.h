@@ -160,7 +160,7 @@ namespace Work_namespace {
 				answer.push_back(_sim.Measure(read_integer_parameter(tmp)));
 				break;
 			case _Measure_all:
-//				_sim.Debug_reg_content(std::cout);
+				_sim.Debug_reg_content(std::cout);
 				answer = _sim.Measure_all();
 				break;
 			case _Phase:
